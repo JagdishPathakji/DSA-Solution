@@ -6,6 +6,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export default function History() {
   const [history, setHistory] = useLocalStorage('mockHistory', []);
+  const [solvedQuestions] = useLocalStorage('solvedQuestions', []);
 
   const clearHistory = () => {
     if (window.confirm("Are you sure you want to clear your mock history? This cannot be undone.")) {
@@ -45,7 +46,12 @@ export default function History() {
       ) : (
         <div className="space-y-4">
           {history.map((mock, index) => (
-            <MockHistoryCard key={mock.id} mock={mock} index={index} />
+            <MockHistoryCard 
+              key={mock.id} 
+              mock={mock} 
+              index={index} 
+              solvedQuestions={solvedQuestions} 
+            />
           ))}
         </div>
       )}
