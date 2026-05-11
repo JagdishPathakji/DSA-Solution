@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Calendar, Clock, Target, ChevronDown, ChevronUp, ExternalLink, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, Target, ChevronDown, ChevronUp, ExternalLink, CheckCircle, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function MockHistoryCard({ mock, index, solvedQuestions = [] }) {
+export default function MockHistoryCard({ mock, index, solvedQuestions = [], onDelete }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const date = new Date(mock.date).toLocaleDateString('en-US', {
@@ -44,12 +44,21 @@ export default function MockHistoryCard({ mock, index, solvedQuestions = [] }) {
       </div>
 
       <div className="flex flex-col gap-2 w-full md:w-auto mt-4 md:mt-0">
-        <div className="flex flex-wrap gap-2 justify-end">
+        <div className="flex flex-wrap gap-2 justify-end items-center">
           {mock.topics && mock.topics.map(topic => (
             <span key={topic} className="text-xs px-2 py-1 bg-dark-bg border border-dark-border rounded text-text-muted">
               {topic}
             </span>
           ))}
+          {onDelete && (
+            <button 
+              onClick={onDelete}
+              className="ml-2 p-1.5 text-text-muted hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+              title="Delete mock session"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
         
         <div className="flex items-center justify-between md:justify-end gap-4 mt-2">

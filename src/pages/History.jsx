@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { History as HistoryIcon, Trash2 } from 'lucide-react';
+import { History as HistoryIcon, Trash2, CheckSquare } from 'lucide-react';
 import MockHistoryCard from '../components/history/MockHistoryCard';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -14,6 +14,12 @@ export default function History() {
     }
   };
 
+  const deleteMock = (id) => {
+    if (window.confirm("Are you sure you want to delete this mock session?")) {
+      setHistory(prev => prev.filter(mock => mock.id !== id));
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex items-center justify-between mb-8">
@@ -22,8 +28,16 @@ export default function History() {
             <HistoryIcon className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-text-main">Mock History</h1>
-            <p className="text-text-muted">Review your past interview simulations</p>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-text-main">Mock History</h1>
+              {solvedQuestions.length > 0 && (
+                <span className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-lg text-sm font-bold">
+                  <CheckSquare className="w-4 h-4" />
+                  {solvedQuestions.length} Total Solved
+                </span>
+              )}
+            </div>
+            <p className="text-text-muted mt-1">Review your past interview simulations</p>
           </div>
         </div>
         
@@ -51,6 +65,7 @@ export default function History() {
               mock={mock} 
               index={index} 
               solvedQuestions={solvedQuestions} 
+              onDelete={() => deleteMock(mock.id)}
             />
           ))}
         </div>
