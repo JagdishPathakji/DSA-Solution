@@ -17,10 +17,12 @@ const shuffleArray = (array) => {
  * Strictly avoids questions in `solvedIds`.
  * Tries to pick from different topics if possible, or respects user selection.
  */
-export const generateMock = (difficulty = null, specificTopics = [], unseenIds = [], solvedIds = [], qPerTopic = 1) => {
+export const generateMock = (difficulty = null, specificTopics = [], unseenIds = [], solvedIds = [], topicCounts = {}) => {
   let globalPool = [...questions];
 
-  const targetQuestions = specificTopics && specificTopics.length > 0 ? specificTopics.length * qPerTopic : 3;
+  const targetQuestions = specificTopics && specificTopics.length > 0 
+    ? specificTopics.reduce((acc, topic) => acc + (topicCounts[topic] || 1), 0)
+    : 3;
 
   // 1. Filter out permanently solved questions
   if (solvedIds && solvedIds.length > 0) {
@@ -53,16 +55,17 @@ export const generateMock = (difficulty = null, specificTopics = [], unseenIds =
   const selected = [];
   const selectedTopicNames = new Set();
 
-  // 5. If specific topics are requested, try to pick exactly qPerTopic from each
+  // 5. If specific topics are requested, try to pick requested amount from each
   if (specificTopics && specificTopics.length > 0) {
     for (const topic of specificTopics) {
       let count = 0;
+      const targetCount = topicCounts[topic] || 1;
       for (const q of globalPool) {
         if (q.topic === topic && !selected.find(s => s.id === q.id)) {
           selected.push(q);
           selectedTopicNames.add(q.topic);
           count++;
-          if (count >= qPerTopic) break;
+          if (count >= targetCount) break;
         }
       }
     }

@@ -22,7 +22,9 @@ export default function Home() {
 
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [customDifficulty, setCustomDifficulty] = useState('Random');
-  const [questionsPerTopic, setQuestionsPerTopic] = useState(1);
+  const [topicCounts, setTopicCounts] = useState({});
+
+  const totalSelectedQuestions = selectedTopics.reduce((sum, topic) => sum + (topicCounts[topic] || 1), 0);
 
   const topics = useMemo(() => [...new Set(questions.map(q => q.topic))].sort(), []);
 
@@ -52,17 +54,29 @@ export default function Home() {
     streak = 1; // Simplified streak calculation for visual
   }
 
-  const startMock = (difficulty, specificTopics = [], qPerTopic = 1) => {
-    navigate('/session', { state: { difficulty, specificTopics, qPerTopic } });
+  const startMock = (difficulty, specificTopics = [], topicCounts = {}) => {
+    navigate('/session', { state: { difficulty, specificTopics, topicCounts } });
   };
 
 
   const toggleTopic = (topic) => {
     setSelectedTopics(prev => {
-      if (prev.includes(topic)) return prev.filter(t => t !== topic);
+      if (prev.includes(topic)) {
+        setTopicCounts(counts => {
+          const newCounts = { ...counts };
+          delete newCounts[topic];
+          return newCounts;
+        });
+        return prev.filter(t => t !== topic);
+      }
       if (prev.length >= 3) return prev;
+      setTopicCounts(counts => ({ ...counts, [topic]: 1 }));
       return [...prev, topic];
     });
+  };
+
+  const updateTopicCount = (topic, count) => {
+    setTopicCounts(prev => ({ ...prev, [topic]: count }));
   };
 
   return (
@@ -187,29 +201,47 @@ export default function Home() {
               <Settings2 className="w-6 h-6 text-primary" />
             </div>
             <h2 className="text-2xl font-extrabold text-text-main">Custom Topic Arena</h2>
-            <span className="text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full ml-auto border border-primary/20">
-              Select up to 3 topics
+            <span className={`text-sm font-semibold px-3 py-1 rounded-full ml-auto border ${totalSelectedQuestions === 3 ? 'text-green-400 bg-green-500/10 border-green-500/20' : 'text-primary bg-primary/10 border-primary/20'}`}>
+              Total: {totalSelectedQuestions}/3 Qs
             </span>
           </div>
 
           <div className="flex flex-wrap gap-2 mb-8">
             {topics.map(topic => {
               const isSelected = selectedTopics.includes(topic);
-              const isDisabled = !isSelected && selectedTopics.length >= 3;
+              const isDisabled = !isSelected && totalSelectedQuestions >= 3;
               return (
-                <button
+                <div
                   key={topic}
-                  onClick={() => toggleTopic(topic)}
-                  disabled={isDisabled}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 border ${isSelected
+                  className={`flex items-center rounded-xl text-sm font-bold transition-all duration-300 border ${isSelected
                     ? 'bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(59,130,246,0.3)] scale-105'
                     : isDisabled
                       ? 'bg-dark-bg border-dark-border/50 text-gray-700 cursor-not-allowed'
                       : 'bg-dark-bg/80 border-white/5 text-text-muted hover:border-white/20 hover:text-white'
                     }`}
                 >
-                  {topic}
-                </button>
+                  <button
+                    onClick={() => toggleTopic(topic)}
+                    disabled={isDisabled}
+                    className="px-4 py-2"
+                  >
+                    {topic}
+                  </button>
+                  {isSelected && (
+                    <div className="pr-2 pl-1 border-l border-primary/30 flex items-center">
+                      <select
+                        onClick={e => e.stopPropagation()}
+                        value={topicCounts[topic] || 1}
+                        onChange={(e) => updateTopicCount(topic, Number(e.target.value))}
+                        className="bg-transparent text-primary focus:outline-none text-sm font-bold cursor-pointer appearance-none text-center"
+                      >
+                        {[1, 2, 3].map(n => (
+                          <option key={n} value={n} className="bg-dark-surface text-white">{n} Qs</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -229,30 +261,17 @@ export default function Home() {
                   <option value="Hard">🔴 Hard</option>
                 </select>
               </div>
-
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <span className="text-sm font-bold text-text-muted whitespace-nowrap">Q'S PER TOPIC</span>
-                <select
-                  value={questionsPerTopic}
-                  onChange={(e) => setQuestionsPerTopic(Number(e.target.value))}
-                  className="bg-dark-surface border border-white/10 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-primary/50 text-sm font-semibold cursor-pointer"
-                >
-                  {[1, 2, 3, 4, 5].map(num => (
-                    <option key={num} value={num}>{num}</option>
-                  ))}
-                </select>
-              </div>
             </div>
 
             <button
-              onClick={() => startMock(customDifficulty, selectedTopics, questionsPerTopic)}
-              disabled={selectedTopics.length === 0}
-              className={`w-full md:w-auto px-8 py-3 rounded-xl font-bold transition-all duration-300 ${selectedTopics.length > 0
+              onClick={() => startMock(customDifficulty, selectedTopics, topicCounts)}
+              disabled={totalSelectedQuestions !== 3}
+              className={`w-full md:w-auto px-8 py-3 rounded-xl font-bold transition-all duration-300 ${totalSelectedQuestions === 3
                 ? 'btn-premium'
                 : 'bg-dark-border text-gray-600 cursor-not-allowed opacity-50'
                 }`}
             >
-              Enter Arena ({selectedTopics.length}/3)
+              Enter Arena
             </button>
           </div>
         </motion.div>
