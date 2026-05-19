@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Sparkles, Target, Trophy } from 'lucide-react';
 import Timer from '../components/mock/Timer';
 import QuestionCard from '../components/mock/QuestionCard';
 import { generateMock } from '../utils/mockGenerator';
@@ -59,19 +59,41 @@ export default function MockSession() {
     );
   };
 
-  if (questions.length === 0) return <div className="p-12 text-center text-text-muted">Generating session...</div>;
+  if (questions.length === 0) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center relative z-10">
+      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p className="text-xl font-bold tracking-widest text-text-muted animate-pulse uppercase">Generating Arena...</p>
+    </div>
+  );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      
       {/* Session Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-dark-surface/50 p-4 rounded-2xl border border-dark-border">
-        <div className="flex items-center gap-4">
-          <div className="bg-primary/20 p-3 rounded-xl">
-            <AlertCircle className="w-6 h-6 text-primary" />
+      <motion.div 
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 glass-panel p-6 sticky top-20 z-50 border-white/10"
+      >
+        <div className="flex items-center gap-5">
+          <div className="bg-gradient-to-br from-primary to-accent-purple p-4 rounded-2xl shadow-lg shadow-primary/20">
+            <Target className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-text-main">Interview Round Simulation</h2>
-            <p className="text-sm text-text-muted">Difficulty: {difficulty}</p>
+            <h2 className="text-2xl font-black text-text-main tracking-tight uppercase flex items-center gap-2">
+              Combat Arena <Sparkles className="w-5 h-5 text-accent-pink" />
+            </h2>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-sm font-bold text-text-muted uppercase tracking-wider">Tier:</span>
+              <span className={`px-2 py-0.5 rounded text-xs font-black uppercase tracking-widest ${
+                difficulty === 'Hard' ? 'text-rose-400 bg-rose-500/20' :
+                difficulty === 'Medium' ? 'text-yellow-400 bg-yellow-500/20' :
+                difficulty === 'Easy' ? 'text-green-400 bg-green-500/20' :
+                'text-primary bg-primary/20'
+              }`}>
+                {difficulty}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -81,39 +103,45 @@ export default function MockSession() {
               <Timer initialMinutes={90} onTimeUp={handleTimeUp} />
               <button 
                 onClick={handleEndMockEarly}
-                className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                className="px-6 py-3 bg-dark-bg border border-rose-500/50 hover:bg-rose-500/20 text-rose-400 rounded-xl text-sm font-black uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_15px_rgba(244,63,94,0.4)] hover:scale-105 whitespace-nowrap"
               >
-                End Mock
+                Abort Mock
               </button>
             </>
           ) : (
-            <div className="flex items-center gap-2 text-green-400 bg-green-400/10 px-4 py-2 rounded-lg font-bold">
-              <CheckCircle className="w-5 h-5" />
-              Completed
+            <div className="flex items-center gap-3 text-accent-green bg-accent-green/10 px-6 py-3 rounded-xl font-black uppercase tracking-widest border border-accent-green/30 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+              <CheckCircle className="w-6 h-6" />
+              Arena Conquered
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {isCompleted && (
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8 p-6 bg-primary/10 border border-primary/20 rounded-xl text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", bounce: 0.5 }}
+          className="mb-12 p-10 glass-panel border border-accent-gold/50 rounded-2xl text-center relative overflow-hidden"
         >
-          <h3 className="text-2xl font-bold text-text-main mb-2">Session Saved!</h3>
-          <p className="text-text-muted mb-4">Your progress has been recorded in history.</p>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-accent-gold/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
+          
+          <Trophy className="w-20 h-20 text-accent-gold mx-auto mb-6 drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]" />
+          <h3 className="text-4xl font-black text-white mb-3 drop-shadow-md">Simulation Complete!</h3>
+          <p className="text-lg font-bold text-text-muted mb-8 max-w-lg mx-auto">
+            Your performance has been permanently etched into your history. Keep training to rank up.
+          </p>
           <button 
             onClick={() => navigate('/')}
-            className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover transition-colors"
+            className="btn-premium px-10 py-4 text-lg"
           >
-            Return Home
+            Return to Dashboard
           </button>
         </motion.div>
       )}
 
       {/* Questions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {questions.map((q, i) => (
           <QuestionCard 
             key={q.id} 
