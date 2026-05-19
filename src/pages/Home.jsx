@@ -29,17 +29,17 @@ export default function Home() {
   const totalMocks = history.length;
   const totalQuestions = history.reduce((acc, curr) => acc + (curr.questions?.length || 3), 0);
   const totalSolved = solvedQuestions.length;
-  
+
   // Rank Calculation
-  const currentRankIndex = RANK_THRESHOLDS.findIndex(r => totalSolved < r.limit) === -1 
-    ? RANK_THRESHOLDS.length - 1 
+  const currentRankIndex = RANK_THRESHOLDS.findIndex(r => totalSolved < r.limit) === -1
+    ? RANK_THRESHOLDS.length - 1
     : RANK_THRESHOLDS.findIndex(r => totalSolved < r.limit);
-  
+
   const currentRank = RANK_THRESHOLDS[currentRankIndex];
   const previousLimit = currentRankIndex === 0 ? 0 : RANK_THRESHOLDS[currentRankIndex - 1].limit;
   const nextLimit = currentRank.limit;
-  const progressPercent = currentRankIndex === RANK_THRESHOLDS.length - 1 
-    ? 100 
+  const progressPercent = currentRankIndex === RANK_THRESHOLDS.length - 1
+    ? 100
     : Math.max(0, Math.min(100, ((totalSolved - previousLimit) / (nextLimit - previousLimit)) * 100));
 
   const RankIcon = currentRank.icon;
@@ -55,11 +55,6 @@ export default function Home() {
     navigate('/session', { state: { difficulty, specificTopics } });
   };
 
-  const handleClearSolved = () => {
-    if (window.confirm("Are you sure you want to reset your solved questions progress? This will reset your Total Solved counter to 0 and drop your rank!")) {
-      setSolvedQuestions([]);
-    }
-  };
 
   const toggleTopic = (topic) => {
     setSelectedTopics(prev => {
@@ -71,16 +66,16 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-      
+
       {/* Gamification Bar - Rank Progress */}
-      <motion.div 
+      <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
         className="glass-panel p-6 mb-12 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative"
       >
         <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-accent-pink"></div>
-        
+
         <div className="flex items-center gap-4">
           <div className={`p-4 rounded-2xl bg-dark-bg/80 border border-white/10 shadow-lg ${currentRank.colorClass} flex-shrink-0`}>
             <RankIcon className="w-8 h-8" />
@@ -99,8 +94,8 @@ export default function Home() {
             <span className="text-text-muted">{currentRankIndex === RANK_THRESHOLDS.length - 1 ? 'MAX RANK' : `${nextLimit} Required`}</span>
           </div>
           <div className="progress-bar-bg">
-            <div 
-              className="progress-bar-fill" 
+            <div
+              className="progress-bar-fill"
               style={{ width: `${progressPercent}%` }}
             ></div>
           </div>
@@ -114,7 +109,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <div className="text-center mb-16">
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
@@ -122,20 +117,20 @@ export default function Home() {
         >
           <Terminal className="w-12 h-12 text-primary drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
         </motion.div>
-        
-        <motion.h1 
+
+        <motion.h1
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-5xl md:text-7xl font-extrabold text-text-main mb-6 tracking-tight drop-shadow-xl"
         >
-          Master DSA with <br/>
+          Master DSA with <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent-purple to-accent-pink animate-gradientFlow bg-[length:200%_auto]">
             Infinite Mock Interviews
           </span>
         </motion.h1>
-        
-        <motion.p 
+
+        <motion.p
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -145,31 +140,31 @@ export default function Home() {
         </motion.p>
 
         {/* Action Buttons */}
-        <motion.div 
+        <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 mb-16"
         >
-          <button 
+          <button
             onClick={() => startMock('Random')}
             className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 btn-premium text-lg"
           >
             <Zap className="w-6 h-6 fill-white/20" /> Start Random Mock
           </button>
-          <button 
+          <button
             onClick={() => startMock('Easy')}
             className="w-full sm:w-auto px-8 py-4 glass-panel border-green-500/40 text-green-400 hover:bg-green-500/20 hover:border-green-400 hover:shadow-[0_0_20px_rgba(74,222,128,0.3)] rounded-xl font-bold transition-all hover:-translate-y-1"
           >
             Easy Mock
           </button>
-          <button 
+          <button
             onClick={() => startMock('Medium')}
             className="w-full sm:w-auto px-8 py-4 glass-panel border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-400 hover:shadow-[0_0_20px_rgba(250,204,21,0.3)] rounded-xl font-bold transition-all hover:-translate-y-1"
           >
             Medium Mock
           </button>
-          <button 
+          <button
             onClick={() => startMock('Hard')}
             className="w-full sm:w-auto px-8 py-4 glass-panel border-rose-500/40 text-rose-400 hover:bg-rose-500/20 hover:border-rose-400 hover:shadow-[0_0_20px_rgba(244,63,94,0.3)] rounded-xl font-bold transition-all hover:-translate-y-1"
           >
@@ -185,7 +180,7 @@ export default function Home() {
           className="max-w-4xl mx-auto glass-panel p-8 rounded-2xl relative overflow-hidden text-left border-white/10"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
-          
+
           <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
             <div className="p-2 bg-dark-bg/50 rounded-lg border border-white/5">
               <Settings2 className="w-6 h-6 text-primary" />
@@ -205,13 +200,12 @@ export default function Home() {
                   key={topic}
                   onClick={() => toggleTopic(topic)}
                   disabled={isDisabled}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 border ${
-                    isSelected 
-                      ? 'bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(59,130,246,0.3)] scale-105' 
-                      : isDisabled 
-                        ? 'bg-dark-bg border-dark-border/50 text-gray-700 cursor-not-allowed'
-                        : 'bg-dark-bg/80 border-white/5 text-text-muted hover:border-white/20 hover:text-white'
-                  }`}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 border ${isSelected
+                    ? 'bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(59,130,246,0.3)] scale-105'
+                    : isDisabled
+                      ? 'bg-dark-bg border-dark-border/50 text-gray-700 cursor-not-allowed'
+                      : 'bg-dark-bg/80 border-white/5 text-text-muted hover:border-white/20 hover:text-white'
+                    }`}
                 >
                   {topic}
                 </button>
@@ -222,7 +216,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 bg-dark-bg/40 p-4 rounded-xl border border-white/5">
             <div className="flex items-center gap-4 w-full sm:w-auto">
               <span className="text-sm font-bold text-text-muted">DIFFICULTY</span>
-              <select 
+              <select
                 value={customDifficulty}
                 onChange={(e) => setCustomDifficulty(e.target.value)}
                 className="bg-dark-surface border border-white/10 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-primary/50 text-sm font-semibold cursor-pointer"
@@ -233,15 +227,14 @@ export default function Home() {
                 <option value="Hard">🔴 Hard</option>
               </select>
             </div>
-            
-            <button 
+
+            <button
               onClick={() => startMock(customDifficulty, selectedTopics)}
               disabled={selectedTopics.length === 0}
-              className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold transition-all duration-300 ${
-                selectedTopics.length > 0 
-                  ? 'btn-premium' 
-                  : 'bg-dark-border text-gray-600 cursor-not-allowed opacity-50'
-              }`}
+              className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold transition-all duration-300 ${selectedTopics.length > 0
+                ? 'btn-premium'
+                : 'bg-dark-border text-gray-600 cursor-not-allowed opacity-50'
+                }`}
             >
               Enter Arena ({selectedTopics.length}/3)
             </button>
@@ -251,43 +244,33 @@ export default function Home() {
 
       {/* Glowing Stats Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <StatsCard 
-          title="Total Mocks" 
-          value={totalMocks} 
-          icon={<BrainCircuit className="w-6 h-6 text-primary" />} 
+        <StatsCard
+          title="Total Mocks"
+          value={totalMocks}
+          icon={<BrainCircuit className="w-6 h-6 text-primary" />}
           delay={0.5}
         />
-        <StatsCard 
-          title="Questions Faced" 
-          value={totalQuestions} 
-          icon={<Target className="w-6 h-6 text-accent-pink" />} 
+        <StatsCard
+          title="Questions Faced"
+          value={totalQuestions}
+          icon={<Target className="w-6 h-6 text-accent-pink" />}
           delay={0.6}
         />
-        <StatsCard 
-          title="Total Solved" 
-          value={totalSolved} 
-          icon={<CheckSquare className="w-6 h-6 text-accent-green" />} 
+        <StatsCard
+          title="Total Solved"
+          value={totalSolved}
+          icon={<CheckSquare className="w-6 h-6 text-accent-green" />}
           delay={0.7}
         />
-        <StatsCard 
-          title="Current Streak" 
-          value={streak} 
+        <StatsCard
+          title="Current Streak"
+          value={streak}
           description="days"
-          icon={<Flame className="w-6 h-6 text-accent-gold" />} 
+          icon={<Flame className="w-6 h-6 text-accent-gold" />}
           delay={0.8}
         />
       </div>
 
-      {totalSolved > 0 && (
-        <div className="flex justify-center mt-12 pb-12">
-          <button 
-            onClick={handleClearSolved}
-            className="text-xs font-bold tracking-widest uppercase text-gray-600 hover:text-red-500 transition-colors border-b border-dotted border-gray-600 hover:border-red-500 pb-1"
-          >
-            Reset Progress & Rank
-          </button>
-        </div>
-      )}
     </div>
   );
 }
