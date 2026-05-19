@@ -15,6 +15,7 @@ export default function MockSession() {
   
   const difficulty = location.state?.difficulty || 'Random';
   const specificTopics = location.state?.specificTopics || [];
+  const qPerTopic = location.state?.qPerTopic || 1;
   
   const [questions, setQuestions] = useState([]);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -23,7 +24,7 @@ export default function MockSession() {
   useEffect(() => {
     // Collect all previously seen questions to try and generate unseen ones
     const seenIds = history.flatMap(mock => mock.questions.map(q => q.id));
-    const generated = generateMock(difficulty, specificTopics, seenIds, solvedQuestions);
+    const generated = generateMock(difficulty, specificTopics, seenIds, solvedQuestions, qPerTopic);
     setQuestions(generated);
   }, []);
 

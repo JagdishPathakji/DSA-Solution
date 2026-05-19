@@ -13,12 +13,14 @@ const shuffleArray = (array) => {
 };
 
 /**
- * Generates a mock session with exactly 3 unique questions.
+ * Generates a mock session.
  * Strictly avoids questions in `solvedIds`.
  * Tries to pick from different topics if possible, or respects user selection.
  */
-export const generateMock = (difficulty = null, specificTopics = [], unseenIds = [], solvedIds = []) => {
+export const generateMock = (difficulty = null, specificTopics = [], unseenIds = [], solvedIds = [], qPerTopic = 1) => {
   let globalPool = [...questions];
+
+  const targetQuestions = specificTopics && specificTopics.length > 0 ? specificTopics.length * qPerTopic : 3;
 
   // 1. Filter out permanently solved questions
   if (solvedIds && solvedIds.length > 0) {
@@ -28,19 +30,19 @@ export const generateMock = (difficulty = null, specificTopics = [], unseenIds =
   // 2. Apply explicit user difficulty filter
   if (difficulty && difficulty !== 'Random') {
     const diffPool = globalPool.filter(q => q.difficulty === difficulty);
-    if (diffPool.length >= 3) globalPool = diffPool; 
+    if (diffPool.length >= targetQuestions) globalPool = diffPool; 
   }
 
   // 3. Prefer questions not seen in recent mocks
   if (unseenIds && unseenIds.length > 0) {
     const unseenPool = globalPool.filter(q => !unseenIds.includes(q.id));
-    if (unseenPool.length >= 3) {
+    if (unseenPool.length >= targetQuestions) {
       globalPool = unseenPool;
     }
   }
 
   // 4. Fallback if pool is too small (e.g. solved all questions)
-  if (globalPool.length < 3) {
+  if (globalPool.length < targetQuestions) {
      globalPool = [...questions];
      if (difficulty && difficulty !== 'Random') {
        globalPool = globalPool.filter(q => q.difficulty === difficulty);
@@ -51,24 +53,28 @@ export const generateMock = (difficulty = null, specificTopics = [], unseenIds =
   const selected = [];
   const selectedTopicNames = new Set();
 
-  // 5. If specific topics are requested, try to pick exactly one from each
+  // 5. If specific topics are requested, try to pick exactly qPerTopic from each
   if (specificTopics && specificTopics.length > 0) {
     for (const topic of specificTopics) {
-      const q = globalPool.find(q => q.topic === topic && !selected.find(s => s.id === q.id));
-      if (q) {
-        selected.push(q);
-        selectedTopicNames.add(q.topic);
+      let count = 0;
+      for (const q of globalPool) {
+        if (q.topic === topic && !selected.find(s => s.id === q.id)) {
+          selected.push(q);
+          selectedTopicNames.add(q.topic);
+          count++;
+          if (count >= qPerTopic) break;
+        }
       }
     }
   }
 
-  // 6. Fill the remaining spots to reach 3 questions
+  // 6. Fill the remaining spots to reach targetQuestions questions
   for (const q of globalPool) {
-    if (selected.length === 3) break;
+    if (selected.length >= targetQuestions) break;
     if (selected.find(s => s.id === q.id)) continue; // skip already selected
 
     // Prefer drawing from unselected topics if possible
-    if (!selectedTopicNames.has(q.topic) || selected.length >= globalPool.length - (3 - selected.length)) {
+    if (!selectedTopicNames.has(q.topic) || selected.length >= globalPool.length - (targetQuestions - selected.length)) {
       selected.push(q);
       selectedTopicNames.add(q.topic);
     }
@@ -76,7 +82,7 @@ export const generateMock = (difficulty = null, specificTopics = [], unseenIds =
 
   // 7. Ultimate fallback to fill if unique topics weren't possible
   let index = 0;
-  while (selected.length < 3 && index < globalPool.length) {
+  while (selected.length < targetQuestions && index < globalPool.length) {
     if (!selected.find(s => s.id === globalPool[index].id)) {
       selected.push(globalPool[index]);
     }

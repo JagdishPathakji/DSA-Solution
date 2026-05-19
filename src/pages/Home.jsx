@@ -22,6 +22,7 @@ export default function Home() {
 
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [customDifficulty, setCustomDifficulty] = useState('Random');
+  const [questionsPerTopic, setQuestionsPerTopic] = useState(1);
 
   const topics = useMemo(() => [...new Set(questions.map(q => q.topic))].sort(), []);
 
@@ -51,8 +52,8 @@ export default function Home() {
     streak = 1; // Simplified streak calculation for visual
   }
 
-  const startMock = (difficulty, specificTopics = []) => {
-    navigate('/session', { state: { difficulty, specificTopics } });
+  const startMock = (difficulty, specificTopics = [], qPerTopic = 1) => {
+    navigate('/session', { state: { difficulty, specificTopics, qPerTopic } });
   };
 
 
@@ -213,25 +214,40 @@ export default function Home() {
             })}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 bg-dark-bg/40 p-4 rounded-xl border border-white/5">
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-              <span className="text-sm font-bold text-text-muted">DIFFICULTY</span>
-              <select
-                value={customDifficulty}
-                onChange={(e) => setCustomDifficulty(e.target.value)}
-                className="bg-dark-surface border border-white/10 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-primary/50 text-sm font-semibold cursor-pointer"
-              >
-                <option value="Random">🎲 Random</option>
-                <option value="Easy">🟢 Easy</option>
-                <option value="Medium">🟡 Medium</option>
-                <option value="Hard">🔴 Hard</option>
-              </select>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-dark-bg/40 p-4 rounded-xl border border-white/5">
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <span className="text-sm font-bold text-text-muted">DIFFICULTY</span>
+                <select
+                  value={customDifficulty}
+                  onChange={(e) => setCustomDifficulty(e.target.value)}
+                  className="bg-dark-surface border border-white/10 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-primary/50 text-sm font-semibold cursor-pointer"
+                >
+                  <option value="Random">🎲 Random</option>
+                  <option value="Easy">🟢 Easy</option>
+                  <option value="Medium">🟡 Medium</option>
+                  <option value="Hard">🔴 Hard</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <span className="text-sm font-bold text-text-muted whitespace-nowrap">Q'S PER TOPIC</span>
+                <select
+                  value={questionsPerTopic}
+                  onChange={(e) => setQuestionsPerTopic(Number(e.target.value))}
+                  className="bg-dark-surface border border-white/10 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-primary/50 text-sm font-semibold cursor-pointer"
+                >
+                  {[1, 2, 3, 4, 5].map(num => (
+                    <option key={num} value={num}>{num}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <button
-              onClick={() => startMock(customDifficulty, selectedTopics)}
+              onClick={() => startMock(customDifficulty, selectedTopics, questionsPerTopic)}
               disabled={selectedTopics.length === 0}
-              className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold transition-all duration-300 ${selectedTopics.length > 0
+              className={`w-full md:w-auto px-8 py-3 rounded-xl font-bold transition-all duration-300 ${selectedTopics.length > 0
                 ? 'btn-premium'
                 : 'bg-dark-border text-gray-600 cursor-not-allowed opacity-50'
                 }`}
