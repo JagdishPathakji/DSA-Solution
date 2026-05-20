@@ -1045,234 +1045,155 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     }
   };
 
-  // Simulated Compiler & Code Verification logic
-  const handleCompileAndRun = (isFullSubmission = false) => {
+  // Real C++ compilation & execution via Wandbox (free, genuine GCC 12)
+  const compileAndRunCpp = async (sourceCode, stdinInput) => {
+    const res = await fetch('https://wandbox.org/api/compile.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        compiler: 'gcc-12.2.0',
+        code: sourceCode,
+        stdin: stdinInput || '',
+        options: '-std=c++17 -O2',
+        save: false
+      })
+    });
+    if (!res.ok) throw new Error(`Compiler API returned ${res.status}`);
+    return await res.json();
+  };
+
+  const handleCompileAndRun = async (isFullSubmission = false) => {
     setIsCompiling(true);
     setEditorTab('terminal');
-    
-    // Clear logs and print compilation command
+    const testCases = generate12TestCases(question.id);
+    const singleTest = testCases[selectedTestCase];
+
     setTerminalLogs(prev => [
       ...prev,
-      `$ g++ -std=c++17 -O3 -Wall main.cpp -o main`,
-      `[System] Launching compilation diagnostics...`
+      `$ g++ -std=c++17 -O2 main.cpp -o main`,
+      `[System] Sending to GCC compiler...`
     ]);
 
-    setTimeout(() => {
-      // 1. Syntactic Compilation check
-      if (!code.includes('#include')) {
+    try {
+      // Step 1: Real compile check
+      const compileCheck = await compileAndRunCpp(code, singleTest.input);
+
+      if (compileCheck.compiler_error) {
+        const errLines = compileCheck.compiler_error.split('\n').filter(l => l.trim());
         setTerminalLogs(prev => [
           ...prev,
-          `main.cpp:1:1: error: standard libraries not included. Standard DSA input streams require '#include'.`,
-          `Compilation failed with exit code 1.`
+          ...errLines,
+          `Compilation failed.`
         ]);
         setIsCompiling(false);
-        if (isFullSubmission) {
-          setTestCasesStatus(Array(12).fill('failed'));
-        } else {
-          const newStatus = [...testCasesStatus];
-          newStatus[selectedTestCase] = 'failed';
-          setTestCasesStatus(newStatus);
-        }
-        return;
-      }
-      if (!code.includes('int main(')) {
-        setTerminalLogs(prev => [
-          ...prev,
-          `main.cpp: In function 'global':`,
-          `error: undefined reference to 'main'. Linker error: main function entry point is missing.`,
-          `Compilation failed with exit code 1.`
-        ]);
-        setIsCompiling(false);
-        if (isFullSubmission) {
-          setTestCasesStatus(Array(12).fill('failed'));
-        } else {
-          const newStatus = [...testCasesStatus];
-          newStatus[selectedTestCase] = 'failed';
-          setTestCasesStatus(newStatus);
-        }
+        if (isFullSubmission) setTestCasesStatus(Array(12).fill('failed'));
+        else { const s = [...testCasesStatus]; s[selectedTestCase] = 'failed'; setTestCasesStatus(s); }
         return;
       }
 
-      // Check brackets match
-      let openBraces = (code.match(/{/g) || []).length;
-      let closeBraces = (code.match(/}/g) || []).length;
-      if (openBraces !== closeBraces) {
-        setTerminalLogs(prev => [
-          ...prev,
-          `main.cpp: In function 'int main()':`,
-          `error: expected '}' or '{' brace balance. Bracket mismatch detected.`,
-          `Compilation failed with exit code 1.`
-        ]);
-        setIsCompiling(false);
-        if (isFullSubmission) {
-          setTestCasesStatus(Array(12).fill('failed'));
-        } else {
-          const newStatus = [...testCasesStatus];
-          newStatus[selectedTestCase] = 'failed';
-          setTestCasesStatus(newStatus);
-        }
-        return;
-      }
-
-      // Check semicolons on statements (Heuristic semicolon error simulator)
-      const codeLines = code.split('\n');
-      for (let i = 0; i < codeLines.length; i++) {
-        const line = codeLines[i].trim();
-        if (
-          line && 
-          (line.startsWith('cin >>') || line.startsWith('cout <<') || line.startsWith('int ') || line.startsWith('vector<') || line.startsWith('long long ')) && 
-          !line.endsWith(';') && 
-          !line.endsWith(')') && 
-          !line.endsWith('{') && 
-          !line.endsWith('}') && 
-          !line.startsWith('for') && 
-          !line.startsWith('while')
-        ) {
-          setTerminalLogs(prev => [
-            ...prev,
-            `main.cpp: In function 'solve':`,
-            `main.cpp:${i + 1}:${line.length + 1}: error: expected ';' before end of statement`,
-            `    ${line} <-- missing semicolon`,
-            `Compilation failed with exit code 1.`
-          ]);
-          setIsCompiling(false);
-          if (isFullSubmission) {
-            setTestCasesStatus(Array(12).fill('failed'));
-          } else {
-            const newStatus = [...testCasesStatus];
-            newStatus[selectedTestCase] = 'failed';
-            setTestCasesStatus(newStatus);
-          }
-          return;
-        }
-      }
-
-      // Compilation passes! Print linking
       setTerminalLogs(prev => [
         ...prev,
-        `[System] Linking successful. Executable binary generated.`,
+        `[System] Compilation successful.`,
         `$ ./main < input.txt`
       ]);
 
-      // 2. Logic Check verification (Heuristics to confirm the user has actually attempted coding)
-      let logicPassed = false;
-      const cleanCode = code.replace(/\s+/g, '');
-      
-      // We check if the user actually removed the default empty template comments and added some logic structures
-      const isTemplateCode = code.includes('// TODO:') || cleanCode.includes('intans=0;cout<<ans<<endl;') || cleanCode.includes('stringans="";cout<<ans<<endl;') || cleanCode.includes('longlongans=0;cout<<ans<<endl;');
-      
-      if (!isTemplateCode) {
-        if (question.id === 'story1') {
-          const hasDiv = cleanCode.includes('/2') || cleanCode.includes('/=2') || cleanCode.includes('>>=1') || cleanCode.includes('>>1');
-          const hasLog = cleanCode.includes('log2') || cleanCode.includes('log(') || cleanCode.includes('while(') || cleanCode.includes('while (');
-          logicPassed = hasDiv || hasLog;
-        } else if (question.id === 'story2') {
-          logicPassed = cleanCode.includes("'r'") || cleanCode.includes('"r"') || cleanCode.includes("'m'") || cleanCode.includes('"m"') || cleanCode.includes('brides[') || cleanCode.includes('grooms[');
-        } else if (question.id === 'story3') {
-          logicPassed = cleanCode.includes('minLen') || cleanCode.includes('minL') || cleanCode.includes('-=') || cleanCode.includes('-') || cleanCode.includes('while');
-        } else if (question.id === 'story4') {
-          logicPassed = cleanCode.includes('sort') || cleanCode.includes('exp') || cleanCode.includes('power') || cleanCode.includes('monsters');
-        } else if (question.id === 'story5') {
-          logicPassed = cleanCode.includes('dp') || cleanCode.includes('1000000007') || cleanCode.includes('modulo') || cleanCode.includes('%');
-        } else if (question.id === 'story6') {
-          logicPassed = cleanCode.includes(".*.") || cleanCode.includes('substr') || cleanCode.includes('grid[');
-        } else {
-          // Standard check for loop structures or variables for other stories
-          logicPassed = cleanCode.includes('for') || cleanCode.includes('while') || cleanCode.includes('if') || cleanCode.includes('vector') || cleanCode.includes('solve(');
-        }
-      }
-
-      // Execute Test cases
+      // Step 2: Run test case(s)
       if (isFullSubmission) {
-        setTerminalLogs(prev => [...prev, `[System] Executing suite against 12 complete testcases...`]);
-        let runStatuses = [...testCasesStatus];
-        let outputs = [...testCasesActualOutput];
+        setTerminalLogs(prev => [...prev, `[System] Running all 12 test cases...`]);
+        let runStatuses = Array(12).fill('pending');
+        let outputs = Array(12).fill('');
         let passedCount = 0;
 
-        const runNextTestCase = (idx) => {
-          if (idx >= 12) {
-            // Full complete
-            const allPassed = passedCount === 12;
-            setTerminalLogs(prev => [
-              ...prev,
-              `----------------------------------------`,
-              `Test Suite Results: ${passedCount}/12 test cases passed.`,
-              allPassed 
-                ? `[Success] Congratulations! Your program successfully resolved all 12 story parameters. Solved directive marked.` 
-                : `[Failure] Mismatch output or logical failure on hidden test cases.`
-            ]);
-            setIsCompiling(false);
-            if (allPassed && !isSolved) {
-              onToggleSolved(question.id);
-            }
-            return;
-          }
-
+        for (let idx = 0; idx < 12; idx++) {
+          runStatuses = [...runStatuses];
           runStatuses[idx] = 'running';
           setTestCasesStatus([...runStatuses]);
 
-          setTimeout(() => {
-            const test = testCases[idx];
-            let actualOut = "";
-            if (logicPassed) {
-              actualOut = runJsSolver(question.id, test.input);
-              runStatuses[idx] = 'passed';
-              passedCount++;
-            } else {
-              actualOut = "Mismatch: incorrect logic or default template values detected.";
-              runStatuses[idx] = 'failed';
-            }
-            outputs[idx] = actualOut;
+          const tc = testCases[idx];
+          try {
+            const result = await compileAndRunCpp(code, tc.input);
+            const actual = (result.program_output || '').trim();
+            const expected = tc.expected.trim();
+            const passed = actual === expected;
+            runStatuses[idx] = passed ? 'passed' : 'failed';
+            outputs[idx] = actual;
+            if (passed) passedCount++;
             setTestCasesActualOutput([...outputs]);
             setTestCasesStatus([...runStatuses]);
-
             setTerminalLogs(prev => [
               ...prev,
-              `  -> Test Case ${idx + 1} (${test.type}): ${runStatuses[idx].toUpperCase()} (Time: 8ms, Memory: 4.1MB)`
+              `  -> Case ${idx + 1} (${tc.type}): ${passed ? 'PASSED' : `FAILED — Expected: "${expected}" Got: "${actual}"`}`
             ]);
-
-            runNextTestCase(idx + 1);
-          }, 150);
-        };
-
-        runNextTestCase(0);
-      } else {
-        // Single Test case
-        const test = testCases[selectedTestCase];
-        setTerminalLogs(prev => [...prev, `[System] Executing Case ${selectedTestCase + 1} (${test.type})...`]);
-        
-        setTimeout(() => {
-          let actualOut = "";
-          let newStatuses = [...testCasesStatus];
-          let newOutputs = [...testCasesActualOutput];
-
-          if (logicPassed) {
-            actualOut = runJsSolver(question.id, test.input);
-            newStatuses[selectedTestCase] = 'passed';
-            setTerminalLogs(prev => [
-              ...prev,
-              `[Success] Output matches expected results. Execution time: 8ms.`,
-              `Expected: "${test.expected}"`,
-              `Received: "${actualOut}"`
-            ]);
-          } else {
-            actualOut = "Process exited with 0. Mismatch: incorrect algorithm output or unedited template.";
-            newStatuses[selectedTestCase] = 'failed';
-            setTerminalLogs(prev => [
-              ...prev,
-              `[Failure] Mismatch detected. Test Case ${selectedTestCase + 1} FAILED.`,
-              `Expected: "${test.expected}"`,
-              `Received: "${actualOut}"`
-            ]);
+          } catch (e) {
+            runStatuses[idx] = 'failed';
+            outputs[idx] = 'API error';
+            setTestCasesActualOutput([...outputs]);
+            setTestCasesStatus([...runStatuses]);
+            setTerminalLogs(prev => [...prev, `  -> Case ${idx + 1}: ERROR - ${e.message}`]);
           }
+        }
 
-          newOutputs[selectedTestCase] = actualOut;
-          setTestCasesActualOutput(newOutputs);
-          setTestCasesStatus(newStatuses);
-          setIsCompiling(false);
-        }, 300);
+        const allPassed = passedCount === 12;
+        setTerminalLogs(prev => [
+          ...prev,
+          `----------------------------------------`,
+          `Results: ${passedCount}/12 passed.`,
+          allPassed
+            ? `[Success] All 12 test cases passed! Marked as Solved.`
+            : `[Failure] ${12 - passedCount} test case(s) failed.`
+        ]);
+        setIsCompiling(false);
+        if (allPassed && !isSolved) onToggleSolved(question.id);
+
+      } else {
+        // Single run
+        setTerminalLogs(prev => [...prev, `[System] Running Case ${selectedTestCase + 1} (${singleTest.type})...`]);
+        const result = await compileAndRunCpp(code, singleTest.input);
+        const actual = (result.program_output || '').trim();
+        const expected = singleTest.expected.trim();
+        const passed = actual === expected;
+
+        const newStatuses = [...testCasesStatus];
+        const newOutputs = [...testCasesActualOutput];
+        newStatuses[selectedTestCase] = passed ? 'passed' : 'failed';
+        newOutputs[selectedTestCase] = actual;
+
+        if (result.program_error) {
+          setTerminalLogs(prev => [
+            ...prev,
+            `[Runtime Error] ${result.program_error.trim()}`,
+            `Expected: "${expected}"`,
+            `Received: "${actual}"`
+          ]);
+        } else if (passed) {
+          setTerminalLogs(prev => [
+            ...prev,
+            `[Success] Output matches expected result.`,
+            `Expected: "${expected}"`,
+            `Received: "${actual}"`
+          ]);
+        } else {
+          setTerminalLogs(prev => [
+            ...prev,
+            `[Failure] Wrong Answer.`,
+            `Expected: "${expected}"`,
+            `Received: "${actual}"`
+          ]);
+        }
+
+        setTestCasesActualOutput(newOutputs);
+        setTestCasesStatus(newStatuses);
+        setIsCompiling(false);
       }
-    }, 1000);
+
+    } catch (err) {
+      setTerminalLogs(prev => [
+        ...prev,
+        `[Error] Compiler API unreachable: ${err.message}`,
+        `Check your internet connection and try again.`
+      ]);
+      setIsCompiling(false);
+    }
   };
 
   const resetTemplate = () => {
