@@ -1133,10 +1133,34 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
 
     setTerminalLogs(prev => [
       ...prev,
-      `[System] Starting local compilation and execution...`
+      `$ g++ -std=c++17 -O2 main.cpp -o main`,
+      `[System] Sending to GCC compiler...`
     ]);
 
     try {
+      // Step 1: Real compile check
+      const compileCheck = await compileAndRunCpp(code, singleTest.input);
+
+      if (compileCheck.compiler_error) {
+        const errLines = compileCheck.compiler_error.split('\n').filter(l => l.trim());
+        setTerminalLogs(prev => [
+          ...prev,
+          ...errLines,
+          `Compilation failed.`
+        ]);
+        setIsCompiling(false);
+        if (isFullSubmission) setTestCasesStatus(Array(12).fill('failed'));
+        else { const s = [...testCasesStatus]; s[selectedTestCase] = 'failed'; setTestCasesStatus(s); }
+        return;
+      }
+
+      setTerminalLogs(prev => [
+        ...prev,
+        `[System] Compilation successful.`,
+        `$ ./main < input.txt`
+      ]);
+
+      // Step 2: Run test case(s)
       if (isFullSubmission) {
         setTerminalLogs(prev => [...prev, `[System] Running all 12 test cases...`]);
         let runStatuses = Array(12).fill('pending');
@@ -1150,8 +1174,8 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
 
           const tc = testCases[idx];
           try {
-            const result = await runCppLocally(code, tc.input);
-            const actual = (result || '').trim();
+            const result = await compileAndRunCpp(code, tc.input);
+            const actual = (result.program_output || '').trim();
             const expected = tc.expected.trim();
             const passed = actual === expected;
             runStatuses[idx] = passed ? 'passed' : 'failed';
@@ -1165,7 +1189,7 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
             ]);
           } catch (e) {
             runStatuses[idx] = 'failed';
-            outputs[idx] = 'Error';
+            outputs[idx] = 'API error';
             setTestCasesActualOutput([...outputs]);
             setTestCasesStatus([...runStatuses]);
             setTerminalLogs(prev => [...prev, `  -> Case ${idx + 1}: ERROR - ${e.message}`]);
@@ -1187,8 +1211,8 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
       } else {
         // Single run
         setTerminalLogs(prev => [...prev, `[System] Running Case ${selectedTestCase + 1} (${singleTest.type})...`]);
-        const result = await runCppLocally(code, singleTest.input);
-        const actual = (result || '').trim();
+        const result = await compileAndRunCpp(code, singleTest.input);
+        const actual = (result.program_output || '').trim();
         const expected = singleTest.expected.trim();
         const passed = actual === expected;
 
@@ -1197,7 +1221,14 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
         newStatuses[selectedTestCase] = passed ? 'passed' : 'failed';
         newOutputs[selectedTestCase] = actual;
 
-        if (passed) {
+        if (result.program_error) {
+          setTerminalLogs(prev => [
+            ...prev,
+            `[Runtime Error] ${result.program_error.trim()}`,
+            `Expected: "${expected}"`,
+            `Received: "${actual}"`
+          ]);
+        } else if (passed) {
           setTerminalLogs(prev => [
             ...prev,
             `[Success] Output matches expected result.`,
@@ -1221,7 +1252,8 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     } catch (err) {
       setTerminalLogs(prev => [
         ...prev,
-        `[Error] Local execution failed: ${err.message}`
+        `[Error] Compiler API unreachable: ${err.message}`,
+        `Check your internet connection and try again.`
       ]);
       setIsCompiling(false);
     }
