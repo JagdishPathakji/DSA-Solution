@@ -243,6 +243,9 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
 
   if (!question) return null;
 
+  // Compute test cases once at render level so both the JSX tab and the handler can use them
+  const testCases = generate12TestCases(question.id);
+
   // 12 Comprehensive Test Cases Generator & solvers mapped per question
   const generate12TestCases = (qid) => {
     switch (qid) {
@@ -1137,7 +1140,6 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
 
     setIsCompiling(true);
     setEditorTab('terminal');
-    const testCases = generate12TestCases(question.id);
     const singleTest = testCases[selectedTestCase];
 
     setTerminalLogs(prev => [
