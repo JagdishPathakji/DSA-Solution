@@ -30,9 +30,9 @@ const CPP_SOLUTIONS = {
   story1: `// Problem: Philaland Coins Reference Solution\n#include <iostream>\nusing namespace std;\n\nvoid solve() {\n    int n;\n    cin >> n;\n    int ans = 0;\n    while (n > 0) {\n        ans++;\n        n /= 2;\n    }\n    cout << ans << endl;\n}\n\nint main() {\n    int t;\n    cin >> t;\n    while (t--) {\n        solve();\n    }\n    return 0;\n}`,
   story2: `// Problem: Swayamvar Matchmaking Reference Solution\n#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    string brides, grooms;\n    cin >> brides >> grooms;\n    \n    int groomR = 0, groomM = 0;\n    for (char c : grooms) {\n        if (c == 'r') groomR++;\n        else if (c == 'm') groomM++;\n    }\n    \n    for (int i = 0; i < n; i++) {\n        char b = brides[i];\n        if (b == 'r') {\n            if (groomR > 0) groomR--;\n            else {\n                cout << (n - i) << endl;\n                return 0;\n            }\n        } else {\n            if (groomM > 0) groomM--;\n            else {\n                cout << (n - i) << endl;\n                return 0;\n            }\n        }\n    }\n    cout << 0 << endl;\n    return 0;\n}`,
   story3: `// Problem: Dole Out Cadbury Reference Solution\n#include <iostream>\n#include <algorithm>\nusing namespace std;\n\nint getBlocks(int l, int w) {\n    int count = 0;\n    while (l > 0 && w > 0) {\n        if (l == w) {\n            count++;\n            break;\n        }\n        if (l > w) l -= w;\n        else w -= l;\n        count++;\n    }\n    return count;\n}\n\nint main() {\n    int minL, maxL, minW, maxW;\n    cin >> minL >> maxL >> minW >> maxW;\n    \n    int total = 0;\n    for (int l = minL; l <= maxL; l++) {\n        for (int w = minW; w <= maxW; w++) {\n            total += getBlocks(l, w);\n        }\n    }\n    cout << total << endl;\n    return 0;\n}`,
-  story4: `// Problem: RPG Monster Defeat Reference Solution\n#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nstruct Monster {\n    int power;\n    int bonus;\n};\n\nbool compareMonsters(const Monster& a, const Monster& b) {\n    return a.power < b.power;\n}\n\nint main() {\n    int n, exp;\n    cin >> n >> exp;\n    vector<Monster> monsters(n);\n    for (int i = 0; i < n; i++) cin >> monsters[i].power;\n    for (int i = 0; i < n; i++) cin >> monsters[i].bonus;\n    \n    sort(monsters.begin(), monsters.end(), compareMonsters);\n    int count = 0;\n    for (int i = 0; i < n; i++) {\n        if (exp > monsters[i].power) {\n            exp += monsters[i].bonus;\n            count++;\n        } else {\n            break;\n        }\n    }\n    cout << count << endl;\n    return 0;\n}`,
-  story5: `// Problem: Unique Birthday Gift Reference Solution\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n, k;\n    cin >> n >> k;\n    vector<vector<long long>> dp(n + 1, vector<long long>(k + 1, 0));\n    for (int j = 1; j <= k; j++) dp[1][j] = 1;\n    \n    for (int i = 1; i < n; i++) {\n        for (int j = 1; j <= k; j++) {\n            if (dp[i][j] == 0) continue;\n            for (int mul = j; mul <= k; mul += j) {\n                dp[i+1][mul] = (dp[i+1][mul] + dp[i][j]) % 1000000007;\n            }\n        }\n    }\n    long long ans = 0;\n    for (int j = 1; j <= k; j++) {\n        ans = (ans + dp[n][j]) % 1000000007;\n    }\n    cout << ans << endl;\n    return 0;\n}`,
-  story6: `// Problem: Constellation Star Decoding Reference Solution\n#include <iostream>\n#include <vector>\n#include <string>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<string> grid(3);\n    for (int i = 0; i < 3; i++) cin >> grid[i];\n    \n    string ans = "";\n    int i = 0;\n    while (i < n) {\n        if (grid[0][i] == '.' && grid[1][i] == '.' && grid[2][i] == '.') {\n            ans += "#";\n            i++;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == ".*." && grid[1].substr(i, 3) == "*.*" && grid[2].substr(i, 3) == "***") {\n            ans += "A";\n            i += 3;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == "***" && grid[1].substr(i, 3) == "**." && grid[2].substr(i, 3) == "***") {\n            ans += "E";\n            i += 3;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == "***" && grid[1].substr(i, 3) == ".*." && grid[2].substr(i, 3) == "***") {\n            ans += "I";\n            i += 3;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == "***" && grid[1].substr(i, 3) == "*.*" && grid[2].substr(i, 3) == "***") {\n            ans += "O";\n            i += 3;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == "*.*" && grid[1].substr(i, 3) == "*.*" && grid[2].substr(i, 3) == "***") {\n            ans += "U";\n            i += 3;\n        } else {\n            i++;\n        }\n    }\n    cout << ans << endl;\n    return 0;\n}`,
+  story4: `// Problem: RPG Monster Defeat Reference Solution\n#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nstruct Monster {\n    int power;\n    int bonus;\n};\n\nbool compareMonsters(const Monster& a, const Monster& b) {\n    return a.power < b.power;\n}\n\nint main() {\n    int n, exp;\n    if (!(cin >> n >> exp)) return 0;\n    vector<Monster> monsters(n);\n    for (int i = 0; i < n; i++) cin >> monsters[i].power;\n    for (int i = 0; i < n; i++) cin >> monsters[i].bonus;\n    \n    sort(monsters.begin(), monsters.end(), compareMonsters);\n    int count = 0;\n    for (int i = 0; i < n; i++) {\n        if (exp >= monsters[i].power) {\n            exp += monsters[i].bonus;\n            count++;\n        } else {\n            break;\n        }\n    }\n    cout << count << endl;\n    return 0;\n}`,
+  story5: `// Problem: Unique Birthday Gift Reference Solution\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int n, k;\n    if (!(cin >> n >> k)) return 0;\n    // n is max value, k is array length\n    vector<vector<int>> dp(k + 1, vector<int>(n + 1, 0));\n    for (int j = 1; j <= n; j++) dp[1][j] = 1;\n    \n    for (int i = 1; i < k; i++) {\n        for (int j = 1; j <= n; j++) {\n            if (dp[i][j] == 0) continue;\n            for (int mul = j; mul <= n; mul += j) {\n                dp[i+1][mul] = (dp[i+1][mul] + dp[i][j]) % 10000;\n            }\n        }\n    }\n    int ans = 0;\n    for (int j = 1; j <= n; j++) {\n        ans = (ans + dp[k][j]) % 10000;\n    }\n    cout << ans << endl;\n    return 0;\n}`,
+  story6: `// Problem: Constellation Star Decoding Reference Solution\n#include <iostream>\n#include <vector>\n#include <string>\nusing namespace std;\n\nint main() {\n    int n;\n    if (!(cin >> n)) return 0;\n    vector<string> grid(3);\n    for (int i = 0; i < 3; i++) cin >> grid[i];\n    \n    string ans = "";\n    int i = 0;\n    while (i < n) {\n        if (grid[0][i] == '#' && grid[1][i] == '#' && grid[2][i] == '#') {\n            ans += "#";\n            i++;\n        } else if (grid[0][i] == '.' && grid[1][i] == '.' && grid[2][i] == '.') {\n            i++;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == ".*." && grid[1].substr(i, 3) == "*.*" && grid[2].substr(i, 3) == "***") {\n            ans += "A";\n            i += 3;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == "***" && grid[1].substr(i, 3) == "**." && grid[2].substr(i, 3) == "***") {\n            ans += "E";\n            i += 3;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == "***" && grid[1].substr(i, 3) == ".*." && grid[2].substr(i, 3) == "***") {\n            ans += "I";\n            i += 3;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == "***" && grid[1].substr(i, 3) == "*.*" && grid[2].substr(i, 3) == "***") {\n            ans += "O";\n            i += 3;\n        } else if (i + 2 < n && grid[0].substr(i, 3) == "*.*" && grid[1].substr(i, 3) == "*.*" && grid[2].substr(i, 3) == "***") {\n            ans += "U";\n            i += 3;\n        } else {\n            i++;\n        }\n    }\n    cout << ans << endl;\n    return 0;\n}`,
   story7: `// Problem: Special Matrix Grid Reference Solution\n#include <iostream>\n#include <vector>\n#include <string>\n#include <cmath>\nusing namespace std;\n\nbool isPrime(int num) {\n    if (num <= 1) return false;\n    for (int i = 2; i * i <= num; i++) {\n        if (num % i == 0) return false;\n    }\n    return true;\n}\n\nbool isCellPrime(string val) {\n    if (val == "Prime") return true;\n    try {\n        int num = stoi(val);\n        return isPrime(num);\n    } catch (...) {\n        return false;\n    }\n}\n\nint main() {\n    int r, c;\n    cin >> r >> c;\n    vector<vector<string>> grid(r, vector<string>(c));\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) cin >> grid[i][j];\n    }\n    \n    vector<vector<long long>> dp(r, vector<long long>(c, 0));\n    if (!isCellPrime(grid[0][0])) dp[0][0] = 1;\n    \n    long long MOD = 1000000007;\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) {\n            if (dp[i][j] == 0) continue;\n            \n            string val = grid[i][j];\n            int num = 0;\n            bool isNum = true;\n            try { num = stoi(val); } catch (...) { isNum = false; }\n            \n            if (isNum && num < 0) {\n                int jump = abs(num);\n                int ni = i + jump;\n                int nj = j + jump;\n                if (ni < r && nj < c && !isCellPrime(grid[ni][nj])) {\n                    dp[ni][nj] = (dp[ni][nj] + dp[i][j]) % MOD;\n                }\n                continue;\n            }\n            \n            if (j + 1 < c && !isCellPrime(grid[i][j+1])) {\n                dp[i][j+1] = (dp[i][j+1] + dp[i][j]) % MOD;\n            }\n            if (i + 1 < r && !isCellPrime(grid[i+1][j])) {\n                dp[i+1][j] = (dp[i+1][j] + dp[i][j]) % MOD;\n            }\n        }\n    }\n    cout << dp[r-1][c-1] << endl;\n    return 0;\n}`,
   story8: `// Problem: Digit Pairs Reference Solution\n#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<int> arr(n);\n    for (int i = 0; i < n; i++) cin >> arr[i];\n    \n    vector<string> scores(n);\n    for (int i = 0; i < n; i++) {\n        int temp = arr[i];\n        int a = temp % 10, b = (temp/10)%10, c = temp/100;\n        int maxV = max({a, b, c});\n        int minV = min({a, b, c});\n        int score = (maxV * 11 + minV * 7) % 100;\n        string s = to_string(score);\n        if (s.length() < 2) s = "0" + s;\n        scores[i] = s;\n    }\n    \n    int pairs = 0;\n    vector<int> odd(10, 0), even(10, 0);\n    for (int i = 0; i < n; i++) {\n        int msb = scores[i][0] - '0';\n        if ((i + 1) % 2 != 0) odd[msb]++;\n        else even[msb]++;\n    }\n    \n    for (int d = 0; d < 10; d++) {\n        int count = 0;\n        if (odd[d] == 2) count++;\n        else if (odd[d] > 2) count += 2;\n        if (even[d] == 2) count++;\n        else if (even[d] > 2) count += 2;\n        pairs += min(2, count);\n    }\n    cout << min(2, pairs) << endl;\n    return 0;\n}`,
   story9: `// Problem: Holes and Balls Reference Solution\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    int h;\n    cin >> h;\n    vector<int> holes(h);\n    for (int i = 0; i < h; i++) cin >> holes[i];\n    int b;\n    cin >> b;\n    vector<int> balls(b);\n    for (int i = 0; i < b; i++) cin >> balls[i];\n    \n    vector<int> capacity(h);\n    for (int i = 0; i < h; i++) capacity[i] = i + 1;\n    vector<int> current(h, 0);\n    \n    for (int i = 0; i < b; i++) {\n        int ball = balls[i];\n        int pos = 0;\n        for (int j = h - 1; j >= 0; j--) {\n            if (holes[j] >= ball && current[j] < capacity[j]) {\n                current[j]++;\n                pos = j + 1;\n                break;\n            }\n        }\n        cout << pos << (i == b - 1 ? "" : " ");\n    }\n    cout << endl;\n    return 0;\n}`,
@@ -43,8 +43,8 @@ const CPP_SOLUTIONS = {
   story14: `// Problem: Web Pages Search Reference Solution\n#include <iostream>\n#include <vector>\n#include <queue>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<vector<int>> adj(n + 1);\n    for (int i = 1; i <= n; i++) {\n        int k;\n        cin >> k;\n        for (int j = 0; j < k; j++) {\n            int target;\n            cin >> target;\n            adj[i].push_back(target);\n        }\n    }\n    int src, dest;\n    cin >> src >> dest;\n    \n    vector<int> dist(n + 1, -1);\n    dist[src] = 1;\n    queue<int> q;\n    q.push(src);\n    while (!q.empty()) {\n        int curr = q.front();\n        q.pop();\n        if (curr == dest) {\n            cout << dist[curr] << endl;\n            return 0;\n        }\n        for (int next : adj[curr]) {\n            if (dist[next] == -1) {\n                dist[next] = dist[curr] + 1;\n                q.push(next);\n            }\n        }\n    }\n    cout << -1 << endl;\n    return 0;\n}`,
   story15: `// Problem: Orchard Tree Planting Reference Solution\n#include <iostream>\n#include <string>\nusing namespace std;\n\nlong long getCombinations(string s) {\n    long long count = 0;\n    int len = s.length();\n    for (int i = 0; i < len; i++) {\n        for (int j = i + 1; j < len; j++) {\n            if (s[i] == s[j]) continue;\n            for (int k = j + 1; k < len; k++) {\n                if (s[j] != s[k]) count++;\n            }\n        }\n    }\n    return count;\n}\n\nint main() {\n    string ashok, anand;\n    cin >> ashok >> anand;\n    long long c1 = getCombinations(ashok);\n    long long c2 = getCombinations(anand);\n    if (c1 > c2) cout << "Ashok" << endl;\n    else if (c2 > c1) cout << "Anand" << endl;\n    else cout << "Draw" << endl;\n    return 0;\n}`,
   story16: `// Problem: Bride Hunting Quest Reference Solution\n#include <iostream>\n#include <vector>\n#include <cmath>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    int r, c;\n    cin >> r >> c;\n    vector<vector<int>> grid(r, vector<int>(c));\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) cin >> grid[i][j];\n    }\n    \n    int maxQual = -1;\n    int minDist = 1e9;\n    int bestR = -1, bestC = -1;\n    \n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) {\n            if (i == 0 && j == 0) continue;\n            if (grid[i][j] == 0) continue;\n            \n            int qual = 0;\n            for (int di = -1; di <= 1; di++) {\n                for (int dj = -1; dj <= 1; dj++) {\n                    if (di == 0 && dj == 0) continue;\n                    int ni = i + di, nj = j + dj;\n                    if (ni >= 0 && ni < r && nj >= 0 && nj < c && grid[ni][nj] == 1) qual++;\n                }\n            }\n            int dist = max(abs(i), abs(j));\n            if (qual > maxQual) {\n                maxQual = qual;\n                minDist = dist;\n                bestR = i + 1;\n                bestC = j + 1;\n            } else if (qual == maxQual) {\n                if (dist < minDist) {\n                    minDist = dist;\n                    bestR = i + 1;\n                    bestC = j + 1;\n                }\n            }\n        }\n    }\n    if (bestR == -1) cout << "No Bride" << endl;\n    else cout << bestR << ":" << bestC << ":" << maxQual << endl;\n    return 0;\n}`,
-  story17: `// Problem: Cyclic String Shift Reference Solution\n#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nvoid solve() {\n    string s, t;\n    cin >> s >> t;\n    \n    if (s.length() != t.length()) {\n        cout << -1 << endl;\n        return;\n    }\n    \n    string doubled = s + s;\n    int n = s.length();\n    int ans = -1;\n    for (int i = 0; i < n; i++) {\n        if (doubled.substr(i, n) == t) {\n            ans = i;\n            break;\n        }\n    }\n    cout << ans << endl;\n}\n\nint main() {\n    solve();\n    return 0;\n}`,
-  story18: `// Problem: Marathon Winner Reference Solution\n#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    int n, t;\n    cin >> n >> t;\n    vector<vector<int>> steps(n, vector<int>(t));\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < t; j++) {\n            cin >> steps[i][j];\n        }\n    }\n    \n    vector<int> leaders(n, 0);\n    vector<int> total_dist(n, 0);\n    \n    for (int sec = 0; sec < t; sec++) {\n        for (int i = 0; i < n; i++) {\n            total_dist[i] += steps[i][sec];\n        }\n        \n        if ((sec + 1) % 2 == 0) {\n            int maxDist = -1;\n            for (int i = 0; i < n; i++) {\n                if (total_dist[i] > maxDist) {\n                    maxDist = total_dist[i];\n                }\n            }\n            for (int i = 0; i < n; i++) {\n                if (total_dist[i] == maxDist) {\n                    leaders[i]++;\n                }\n            }\n        }\n    }\n    \n    int maxLead = -1, bestIdx = -1;\n    for (int i = 0; i < n; i++) {\n        if (leaders[i] > maxLead) {\n            maxLead = leaders[i];\n            bestIdx = i + 1;\n        }\n    }\n    cout << bestIdx << endl;\n    return 0;\n}`
+  story17: `// Problem: Cyclic String Shift Reference Solution\n#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nvoid solve() {\n    string s, t;\n    if (!(cin >> s >> t)) return;\n    \n    if (s.length() != t.length()) {\n        cout << -1 << endl;\n        return;\n    }\n    \n    string doubled = s + s;\n    int n = s.length();\n    int ans = -1;\n    for (int i = 0; i < n; i++) {\n        if (doubled.substr(i, n) == t) {\n            ans = (n - i) % n;\n            break;\n        }\n    }\n    cout << ans << endl;\n}\n\nint main() {\n    solve();\n    return 0;\n}`,
+  story18: `// Problem: Marathon Winner Reference Solution\n#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    int n, t;\n    if (!(cin >> n >> t)) return 0;\n    vector<vector<int>> steps(n, vector<int>(t));\n    vector<int> step_dist(n);\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < t; j++) {\n            cin >> steps[i][j];\n        }\n        cin >> step_dist[i];\n    }\n    \n    vector<int> leaders(n, 0);\n    vector<int> total_dist(n, 0);\n    \n    for (int sec = 0; sec < t; sec++) {\n        for (int i = 0; i < n; i++) {\n            total_dist[i] += steps[i][sec] * step_dist[i];\n        }\n        \n        if ((sec + 1) % 2 == 0) {\n            int maxDist = -1;\n            for (int i = 0; i < n; i++) {\n                if (total_dist[i] > maxDist) {\n                    maxDist = total_dist[i];\n                }\n            }\n            for (int i = 0; i < n; i++) {\n                if (total_dist[i] == maxDist) {\n                    leaders[i]++;\n                }\n            }\n        }\n    }\n    \n    int maxLead = -1, bestIdx = -1;\n    for (int i = 0; i < n; i++) {\n        if (leaders[i] > maxLead) {\n            maxLead = leaders[i];\n            bestIdx = i + 1;\n        }\n    }\n    cout << bestIdx << endl;\n    return 0;\n}`
 };
 
 // Helper to highlight variables and expressions in the description
@@ -263,7 +263,7 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
         ];
       case 'story2': // Swayamvar Matchmaking
         return [
-          { input: "4\nrrmm\nmrmr", expected: "1", type: "Sample case" },
+          { input: "4\nmrrr\nmrmr", expected: "1", type: "Sample case" },
           { input: "2\nrm\nmr", expected: "0", type: "Exact match case" },
           { input: "1\nr\nm", expected: "1", type: "Edge case" },
           { input: "3\nrrr\nmmm", expected: "3", type: "No matches at all" },
@@ -295,16 +295,16 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
         return [
           { input: "3\n100\n101 100 300\n20 50 10", expected: "2", type: "Sample case" },
           { input: "1\n10\n9\n5", expected: "1", type: "Single edge case" },
-          { input: "1\n10\n10\n5", expected: "0", type: "Failed edge case" },
+          { input: "1\n10\n10\n5", expected: "1", type: "Failed edge case" },
           { input: "3\n100\n101 200 300\n50 50 50", expected: "0", type: "Instafail greedy" },
           { input: "3\n100\n90 120 150\n30 30 30", expected: "3", type: "Complete chain defeat" },
           { input: "4\n50\n40 80 120 160\n10 10 10 10", expected: "1", type: "Partial sorting block" },
-          { input: "5\n10\n5 12 18 20 40\n3 6 2 20 5", expected: "4", type: "Sorting greedy chain" },
+          { input: "5\n10\n5 12 18 20 40\n3 6 2 20 5", expected: "5", type: "Sorting greedy chain" },
           { input: "6\n20\n10 15 25 30 50 100\n5 10 5 20 50 10", expected: "6", type: "Full chain progression" },
           { input: "8\n5\n1 2 4 8 16 32 64 128\n1 2 4 8 16 32 64 128", expected: "8", type: "Exponential growth match" },
-          { input: "3\n10\n10 20 30\n10 10 10", expected: "0", type: "Exact threshold lock" },
-          { input: "10\n50\n45 48 55 60 70 80 90 100 110 120\n5 7 2 10 5 5 10 20 5 5", expected: "10", type: "Large scale RPG battle" },
-          { input: "12\n100\n90 95 110 120 130 140 150 160 170 180 190 200\n2 3 5 5 10 5 10 5 15 5 20 20", expected: "12", type: "Max Boundary monsters" }
+          { input: "3\n10\n10 20 30\n10 10 10", expected: "3", type: "Exact threshold lock" },
+          { input: "10\n50\n45 48 55 60 70 80 90 100 110 120\n5 7 2 10 5 5 10 20 5 5", expected: "5", type: "Large scale RPG battle" },
+          { input: "12\n100\n90 95 110 120 130 140 150 160 170 180 190 200\n2 3 5 5 10 5 10 5 15 5 20 20", expected: "2", type: "Max Boundary monsters" }
         ];
       case 'story5': // Unique Birthday Gift
         return [
@@ -313,17 +313,17 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
           { input: "1\n5", expected: "1", type: "Single length edge" },
           { input: "2\n1", expected: "2", type: "Single element choice" },
           { input: "2\n2", expected: "3", type: "Small DP sequence" },
-          { input: "2\n5", expected: "10", type: "Length 2 multiples" },
-          { input: "2\n10", expected: "27", type: "Multiple DP grid" },
-          { input: "3\n5", expected: "17", type: "Medium DP progression" },
-          { input: "3\n10", expected: "68", type: "Medium DP scale" },
-          { input: "5\n5", expected: "49", type: "Normal parameters" },
-          { input: "5\n10", expected: "427", type: "Large DP parameters" },
-          { input: "10\n100", expected: "1931", type: "Max boundary modulo" }
+          { input: "2\n5", expected: "6", type: "Length 2 multiples" },
+          { input: "2\n10", expected: "11", type: "Multiple DP grid" },
+          { input: "3\n5", expected: "11", type: "Medium DP progression" },
+          { input: "3\n10", expected: "21", type: "Medium DP scale" },
+          { input: "5\n5", expected: "31", type: "Normal parameters" },
+          { input: "5\n10", expected: "86", type: "Large DP parameters" },
+          { input: "10\n100", expected: "2201", type: "Max boundary modulo" }
         ];
       case 'story6': // Constellation Star Decoding
         return [
-          { input: "18\n*.*#***#*.*#***.*.\n*.*#**.#*.*#*.*.*.\n***#***#***#***.*.", expected: "A#E#I#U", type: "Sample case" },
+          { input: "18\n.*.#***#***#*.*.*.\n*.*#**.#.*.#*.*.*.\n***#***#***#***.*.", expected: "A#E#I#U", type: "Sample case" },
           { input: "3\n.*.\n*.*\n***", expected: "A", type: "Single character 'A'" },
           { input: "3\n***\n**.\n***", expected: "E", type: "Single character 'E'" },
           { input: "3\n***\n.*.\n***", expected: "I", type: "Single character 'I'" },
@@ -332,9 +332,9 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
           { input: "1\n#\n#\n#", expected: "#", type: "Space indicator grid" },
           { input: "5\n#.#.#\n#.#.#\n#.#.#", expected: "#.#.#", type: "Continuous spaces" },
           { input: "7\n.*.#***\n*.*#**.\n***#***", expected: "A#E", type: "Mixed sequence" },
-          { input: "11\n.*.#***#***\n*.*#**.***.\n***#***#***", expected: "A#E#I", type: "Complex parsing" },
-          { input: "15\n.*.#***#***#***\n*.*#**.***.*.*\n***#***#***#***", expected: "A#E#I#O", type: "Dense vowels list" },
-          { input: "19\n.*.#***#***#***#*.*\n*.*#**.***.*.*#*.*\n***#***#***#***#***", expected: "A#E#I#O#U", type: "Max sequence full constellation" }
+          { input: "11\n.*.#***#***\n*.*#**.#.*.\n***#***#***", expected: "A#E#I", type: "Complex parsing" },
+          { input: "15\n.*.#***#***#***\n*.*#**.#.*.#*.*\n***#***#***#***", expected: "A#E#I#O", type: "Dense vowels list" },
+          { input: "19\n.*.#***#***#***#*.*\n*.*#**.#.*.#*.*#*.*\n***#***#***#***#***", expected: "A#E#I#O#U", type: "Max sequence full constellation" }
         ];
       case 'story7': // Special Grid Matrix
         return [
@@ -349,7 +349,8 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
           { input: "4 4\n0 4 4 4\n4 0 4 4\n4 4 0 -2\n4 4 4 0", expected: "18", type: "Deep portal jump test" },
           { input: "4 4\n0 Prime 4 4\n4 0 Prime 4\n4 4 0 Prime\n4 4 4 0", expected: "2", type: "Prime diagonaled lock" },
           { input: "5 5\n0 4 4 4 4\n4 0 4 4 4\n4 4 0 4 4\n4 4 4 0 -3\n4 4 4 4 0", expected: "69", type: "Large portal jump grid" },
-          { input: "6 6\n0 4 4 4 4 4\n4 0 4 4 4 4\n4 4 0 4 4 4\n4 4 4 0 4 4\n4 4 4 4 0 -4\n4 4 4 4 4 0", expected: "250", type: "Max boundary paths" }
+          { input: "6 6\n0 1 0 1 0 1\n1 1 1 1 1 1\n0 1 0 1 0 1\n1 1 1 1 1 1\n0 1 0 1 0 1\n1 1 1 1 1 1", expected: "2:2:6", type: "Large scale grid checking" },
+          { input: "8 8\n0 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1", expected: "2:2:8", type: "Max boundary neighbors test" }
         ];
       case 'story8': // Digit Pairs Match
         return [
@@ -488,38 +489,36 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
         ];
       case 'story17': // Cyclic String Shift
         return [
-          { input: "2\n3 2\n101\n110", expected: "1", type: "Sample case" },
-          { input: "1\n1 1\n1\n1", expected: "0", type: "Single element match edge" },
-          { input: "1\n2 1\n10\n01", expected: "1", type: "Two elements shift match" },
-          { input: "1\n2 1\n10\n11", expected: "-1", type: "Two elements impossible" },
-          { input: "1\n3 1\n100\n001", expected: "2", type: "Three elements shift match" },
-          { input: "1\n4 2\n1001\n0110", expected: "-1", type: "Four elements impossible" },
-          { input: "1\n5 1\n10101\n11010", expected: "1", type: "Odd length shift match" },
-          { input: "1\n6 2\n110110\n110110", expected: "0", type: "Multi-cyclic symmetry match" },
-          { input: "1\n8 1\n10000000\n00000001", expected: "7", type: "Extended bits rotation search" },
-          { input: "1\n10 2\n1111111111\n1111111111", expected: "0", type: "Solid matching cyclic search" },
-          { input: "2\n4 1\n1010\n0101\n4 1\n1100\n0011", expected: "1\n2", type: "Multi test case execution flow" },
-          { input: "2\n12 1\n101010101010\n010101010101\n12 1\n111000111000\n000111000111", expected: "1\n3", type: "Max boundary bits shift matching" }
+          { input: "101\n110", expected: "1", type: "Sample case" },
+          { input: "1\n1", expected: "0", type: "Single element match edge" },
+          { input: "10\n01", expected: "1", type: "Two elements shift match" },
+          { input: "10\n11", expected: "-1", type: "Two elements impossible" },
+          { input: "100\n001", expected: "2", type: "Three elements shift match" },
+          { input: "1001\n1111", expected: "-1", type: "Four elements impossible" },
+          { input: "10101\n11010", expected: "1", type: "Odd length shift match" },
+          { input: "110110\n110110", expected: "0", type: "Multi-cyclic symmetry match" },
+          { input: "10000000\n00000001", expected: "7", type: "Extended bits rotation search" },
+          { input: "1111111111\n1111111111", expected: "0", type: "Solid matching cyclic search" },
+          { input: "101010101010\n010101010101", expected: "11", type: "Max boundary bits shift matching" },
+          { input: "111000111000\n000111000111", expected: "9", type: "Max boundary cyclic shift search" }
         ];
       case 'story18': // Marathon Winner Simulation
         return [
-          { input: "3\n4\n1 2 1 2 2\n2 1 2 1 2\n1 1 1 1 1", expected: "2", type: "Sample case" },
+          { input: "3\n4\n1 2 1 2 2\n2 1 2 1 3\n1 1 1 1 1", expected: "2", type: "Sample case" },
           { input: "2\n2\n1 2 1\n2 1 1", expected: "1", type: "Two runner minimal checkpoint" },
           { input: "2\n2\n1 1 1\n1 1 1", expected: "1", type: "Equal scores tiebreaker test" },
           { input: "3\n2\n5 5 1\n1 1 1\n1 1 1", expected: "1", type: "Strong early lead runner" },
-          { input: "3\n4\n1 1 1 1 5\n2 2 2 2 2\n3 3 3 3 1", expected: "3", type: "Consistency vs burst winner" },
-          { input: "4\n4\n1 2 3 4 1\n4 3 2 1 1\n2 2 2 2 2\n3 3 3 3 1", expected: "2", type: "Four runner checkpoint checks" },
-          { input: "3\n6\n1 2 1 2 1 2 2\n2 1 2 1 2 1 2\n1 1 1 1 1 1 1", expected: "2", type: "Six second long marathon" },
+          { input: "3\n4\n1 1 1 1 5\n2 2 2 2 2\n3 3 3 3 1", expected: "1", type: "Consistency vs burst winner" },
+          { input: "4\n4\n1 2 3 4 1\n4 3 2 1 1\n2 2 2 2 2\n3 3 3 3 1", expected: "3", type: "Four runner checkpoint checks" },
+          { input: "3\n6\n1 2 1 2 1 2 2\n2 1 2 1 2 1 2\n1 1 1 1 1 1 1", expected: "1", type: "Six second long marathon" },
           { input: "5\n4\n1 2 1 2 1\n2 1 2 1 1\n3 1 1 1 1\n1 1 1 5 1\n2 2 2 2 1", expected: "5", type: "Multiple runner tie check" },
-          { input: "3\n8\n1 1 1 1 1 1 1 1 2\n2 2 2 2 2 2 2 2 1\n3 3 3 3 3 3 3 3 1", expected: "2", type: "Eight second steps check" },
+          { input: "3\n8\n1 1 1 1 1 1 1 1 2\n2 2 2 2 2 2 2 2 1\n3 3 3 3 3 3 3 3 1", expected: "3", type: "Eight second steps check" },
           { input: "6\n4\n1 1 1 1 1\n2 2 2 2 1\n3 3 3 3 1\n4 4 4 4 1\n5 5 5 5 1\n6 6 6 6 1", expected: "6", type: "Large list runner check" },
-          { input: "4\n10\n1 2 1 2 1 2 1 2 1 2 2\n2 1 2 1 2 1 2 1 2 1 2\n1 1 1 1 1 1 1 1 1 1 1\n3 3 1 1 1 1 1 1 1 1 1", expected: "4", type: "Ten checkpoints runner test" },
+          { input: "4\n10\n1 2 1 2 1 2 1 2 1 2 2\n2 1 2 1 2 1 2 1 2 1 2\n1 1 1 1 1 1 1 1 1 1 1\n3 3 1 1 1 1 1 1 1 1 1", expected: "1", type: "Ten checkpoints runner test" },
           { input: "8\n6\n1 2 1 2 1 2 2\n2 1 2 1 2 1 2\n3 1 1 1 1 1 1\n1 1 1 1 1 1 1\n2 2 2 2 2 2 1\n3 3 1 1 1 1 1\n1 2 3 4 5 6 1\n2 2 2 2 2 2 2", expected: "8", type: "Max boundary runners marathon winner" }
         ];
     }
   };
-
-  const testCases = generate12TestCases(question.id);
 
   // Dynamic JS validation solver core
   const runJsSolver = (qid, inputVal) => {
@@ -591,7 +590,7 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
         monsters.sort((a, b) => a.power - b.power);
         let count = 0;
         for (let m of monsters) {
-          if (exp > m.power) {
+          if (exp >= m.power) {
             exp += m.bonus;
             count++;
           } else {
@@ -603,20 +602,22 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
       if (qid === 'story5') {
         const tokens = inputVal.trim().split(/\s+/).map(Number);
         if (tokens.length < 2) return "0";
-        const [n, k] = tokens;
-        let dp = Array.from({ length: n + 1 }, () => Array(k + 1).fill(0));
-        for (let j = 1; j <= k; j++) dp[1][j] = 1;
-        for (let i = 1; i < n; i++) {
-          for (let j = 1; j <= k; j++) {
+        const [n, k] = tokens; // n is max value, k is array length
+        let dp = Array.from({ length: k + 1 }, () => Array(n + 1).fill(0));
+        for (let j = 1; j <= n; j++) dp[1][j] = 1;
+        for (let i = 1; i < k; i++) {
+          for (let j = 1; j <= n; j++) {
             if (dp[i][j] === 0) continue;
-            for (let mul = j; mul <= k; mul += j) {
-              dp[i+1][mul] = (dp[i+1][mul] + dp[i][j]) % 1000000007;
+            for (let mul = j; mul <= n; mul += j) {
+              dp[i+1][mul] = (dp[i+1][mul] + dp[i][j]) % 10000;
             }
           }
         }
         let ans = 0;
-        for (let j = 1; j <= k; j++) ans = (ans + dp[n][j]) % 1000000007;
-        return (ans % 10000).toString(); // TCS Codevita requires modulo 10000
+        for (let j = 1; j <= n; j++) {
+          ans = (ans + dp[k][j]) % 10000;
+        }
+        return ans.toString();
       }
       if (qid === 'story6') {
         const lines = inputVal.trim().split(/\n/);
@@ -631,6 +632,8 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
           const col2 = grid[2][i];
           if (col0 === '#' && col1 === '#' && col2 === '#') {
             res += "#";
+            i++;
+          } else if (grid[0][i] === '.' && grid[1][i] === '.' && grid[2][i] === '.') {
             i++;
           } else if (i + 2 < n && grid[0].substr(i, 3) === ".*." && grid[1].substr(i, 3) === "*.*" && grid[2].substr(i, 3) === "***") {
             res += "A";
@@ -841,14 +844,11 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
           if (components[i].length === 0) continue;
           
           let total_weight = 0;
-          let min_cost = 1e9;
+          let total_value = 0;
           for (let idx of components[i]) {
             total_weight += weights[idx - 1];
-            if (costs[idx - 1] < min_cost) min_cost = costs[idx - 1];
+            total_value += costs[idx - 1];
           }
-          
-          let total_value = 0;
-          for (let idx of components[i]) total_value += costs[idx - 1];
           
           for (let j = w; j >= total_weight; j--) {
             dp[j] = Math.max(dp[j], dp[j - total_weight] + total_value);
@@ -979,47 +979,41 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
         return `${bestR}:${bestC}:${maxQual}`;
       }
       if (qid === 'story17') {
-        const tokens = inputVal.trim().split(/\s+/);
-        if (tokens.length < 2) return "0";
-        const t = parseInt(tokens[0]);
-        let results = [];
-        let idx = 1;
-        for (let i = 0; i < t; i++) {
-          const n = parseInt(tokens[idx++]);
-          const k = parseInt(tokens[idx++]);
-          const s = tokens[idx++];
-          let maxVal = "";
-          let doubled = s + s;
-          for (let j = 0; j < n; j++) {
-            const shift = doubled.substr(j, n);
-            if (shift > maxVal) maxVal = shift;
+        const lines = inputVal.trim().split(/\s+/);
+        if (lines.length < 2) return "-1";
+        const s = lines[0];
+        const t = lines[1];
+        if (s.length !== t.length) return "-1";
+        const n = s.length;
+        const doubled = s + s;
+        let ans = -1;
+        for (let i = 0; i < n; i++) {
+          if (doubled.substr(i, n) === t) {
+            ans = (n - i) % n;
+            break;
           }
-          let shifts = [];
-          for (let j = 0; j < n; j++) {
-            if (doubled.substr(j, n) === maxVal) shifts.push(j);
-          }
-          const d = shifts.length > 1 ? shifts[1] - shifts[0] : n;
-          const ans = shifts[0] + (k - 1) * d;
-          results.push(ans);
         }
-        return results.join('\n');
+        return ans.toString();
       }
       if (qid === 'story18') {
         const tokens = inputVal.trim().split(/\s+/).map(Number);
         if (tokens.length < 2) return "1";
         const n = tokens[0], t = tokens[1];
-        let steps = [];
+        let steps = Array.from({ length: n }, () => []);
+        let step_dist = Array(n).fill(0);
         let tIdx = 2;
         for (let i = 0; i < n; i++) {
-          steps.push(tokens.slice(tIdx, tIdx + t));
-          tIdx += t;
+          for (let j = 0; j < t; j++) {
+            steps[i].push(tokens[tIdx++]);
+          }
+          step_dist[i] = tokens[tIdx++];
         }
         
         let leaders = Array(n).fill(0);
         let total_dist = Array(n).fill(0);
         for (let sec = 0; sec < t; sec++) {
           for (let i = 0; i < n; i++) {
-            total_dist[i] += steps[i][sec];
+            total_dist[i] += steps[i][sec] * step_dist[i];
           }
           if ((sec + 1) % 2 === 0) {
             let maxDist = -1;
@@ -1184,15 +1178,24 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
 
       // Step 2: Run test case(s)
       if (isFullSubmission) {
-        setTerminalLogs(prev => [...prev, `[System] Executing all 12 test cases in parallel...`]);
-        
-        let runStatuses = Array(12).fill('running');
+        setTerminalLogs(prev => [...prev, `[System] Executing all 12 test cases sequentially...`]);
+
+        let runStatuses = Array(12).fill('pending');
         let outputs = Array(12).fill('');
         let passedCount = 0;
         setTestCasesStatus([...runStatuses]);
 
-        // Run all 12 test cases in parallel
-        const promises = testCases.map(async (tc, idx) => {
+        const results = [];
+
+        // Run test cases SEQUENTIALLY to avoid Wandbox rate-limiting
+        for (let idx = 0; idx < testCases.length; idx++) {
+          const tc = testCases[idx];
+
+          // Mark current as running
+          runStatuses[idx] = 'running';
+          setTestCasesStatus([...runStatuses]);
+
+          let passed = false;
           try {
             const result = await compileAndRunCpp(code, tc.input);
 
@@ -1205,7 +1208,10 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
                 ...prev,
                 `  -> Case ${idx + 1} (${tc.type}): FAILED (Compiler Error)`
               ]);
-              return false;
+              results.push(false);
+              // Small delay before next request
+              if (idx < testCases.length - 1) await new Promise(r => setTimeout(r, 400));
+              continue;
             }
 
             if (result.program_error) {
@@ -1217,12 +1223,14 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
                 ...prev,
                 `  -> Case ${idx + 1} (${tc.type}): FAILED (Runtime Error: ${result.program_error.trim()})`
               ]);
-              return false;
+              results.push(false);
+              if (idx < testCases.length - 1) await new Promise(r => setTimeout(r, 400));
+              continue;
             }
 
             const actual = (result.program_output || '').trim();
             const expected = tc.expected.trim();
-            const passed = actual === expected;
+            passed = actual === expected;
 
             runStatuses[idx] = passed ? 'passed' : 'failed';
             outputs[idx] = actual;
@@ -1234,7 +1242,6 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
               ...prev,
               `  -> Case ${idx + 1} (${tc.type}): ${passed ? 'PASSED' : `FAILED — Expected: "${expected}" Got: "${actual}"`}`
             ]);
-            return passed;
           } catch (e) {
             runStatuses[idx] = 'failed';
             outputs[idx] = 'Execution Error';
@@ -1244,11 +1251,13 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
               ...prev,
               `  -> Case ${idx + 1} (${tc.type}): ERROR - ${e.message}`
             ]);
-            return false;
+            passed = false;
           }
-        });
 
-        const results = await Promise.all(promises);
+          results.push(passed);
+          // Throttle: wait 400ms between requests so Wandbox doesn't rate-limit
+          if (idx < testCases.length - 1) await new Promise(r => setTimeout(r, 400));
+        }
         const allPassed = results.every(x => x === true);
 
         setTerminalLogs(prev => [

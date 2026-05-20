@@ -685,9 +685,9 @@ export const questions = [
     constraints: "1 <= N <= 10000\nStrings contain only 'r' and 'm' characters.",
     inputFormat: "The first line contains an integer N, denoting the number of brides/grooms.\nThe second line contains a string of length N representing the brides' drink preferences.\nThe third line contains a string of length N representing the grooms' drink preferences.",
     outputFormat: "Print a single integer representing the number of brides who remain unmarried.",
-    sampleInput: "4\nrrmm\nmrmr",
+    sampleInput: "4\nmrrr\nmrmr",
     sampleOutput: "1",
-    explanation: "Brides: rrmm, Grooms: mrmr\n1. Bride 1 ('r') meets Groom 1 ('m'). No match. Groom 1 goes to back. Grooms: rmrm\n2. Bride 1 ('r') meets Groom 2 ('r'). Match! Both leave. Brides: rmm, Grooms: mrm\n3. Bride 2 ('r') meets Groom 3 ('m'). No match. Groom 3 goes to back. Grooms: rmm\n4. Bride 2 ('r') meets Groom 4 ('r'). Match! Both leave. Brides: mm, Grooms: mm\n5. Bride 3 ('m') meets Groom 5 ('m'). Match! Both leave. Brides: m, Grooms: r\n6. Bride 4 ('m') meets Groom 6 ('r'). No match. Groom 6 goes to back. Grooms: r\nNo more 'm' grooms exist to match Bride 4. The process ends with 1 unmarried bride."
+    explanation: "Brides: mrrr, Grooms: mrmr\n1. Bride 1 ('m') meets Groom 1 ('m'). Match! Both leave. Brides: rrr, Grooms: rmr\n2. Bride 2 ('r') meets Groom 2 ('r'). Match! Both leave. Brides: rr, Grooms: mr\n3. Bride 3 ('r') meets Groom 3 ('m'). No match. Groom 3 goes to back. Grooms: rm\n4. Bride 3 ('r') meets Groom 4 ('r'). Match! Both leave. Brides: r, Grooms: m\n5. Bride 4 ('r') meets Groom 3 ('m'). No match. Groom 3 goes to back. Grooms: m\nNo more 'r' grooms exist to match Bride 4. The process ends with 1 unmarried bride."
   },
   {
     id: "story3",
@@ -753,9 +753,9 @@ export const questions = [
     constraints: "3 <= N <= 10^5\nThe grid is represented by 3 strings, each of length N.",
     inputFormat: "An integer N, followed by 3 lines representing the 3 x N matrix.",
     outputFormat: "Print the decoded sequence of vowels and '#' characters.",
-    sampleInput: "18\n*.*#***#*.*#***.*.\n*.*#**.#*.*#*.*.*.\n***#***#***#***.*.",
+    sampleInput: "18\n.*.#***#***#*.*.*.\n*.*#**.#.*.#*.*.*.\n***#***#***#***.*.",
     sampleOutput: "A#E#I#U",
-    explanation: "Decoding block by block:\n- Columns 1-3 form pattern A ('*.*', '*.*', '***'). Output: A\n- Column 4 is '#'. Output: #\n- Columns 5-7 form pattern E ('***', '**.', '***'). Output: E\n- Column 8 is '#'. Output: #\n- Columns 9-11 form pattern I ('*.*', '*.*', '***' - wait, with I the top/bottom are complete and center has '*' in middle; let's check). Output: I\n- Column 12 is '#'. Output: #\n- Columns 13-15 form pattern U ('***', '*.*', '***'). Output: U\n- The remaining are dots and are skipped."
+    explanation: "Decoding block by block:\n- Columns 1-3 form pattern A ('.*.', '*.*', '***'). Output: A\n- Column 4 is '#'. Output: #\n- Columns 5-7 form pattern E ('***', '**.', '***'). Output: E\n- Column 8 is '#'. Output: #\n- Columns 9-11 form pattern I ('***', '.*.', '***'). Output: I\n- Column 12 is '#'. Output: #\n- Columns 13-15 form pattern U ('*.*', '*.*', '***'). Output: U\n- The remaining are dots and are skipped."
   },
   {
     id: "story7",
@@ -957,9 +957,9 @@ export const questions = [
     constraints: "1 <= N <= 100\n2 <= T <= 100 (T is even)",
     inputFormat: "The first line contains N.\nThe second line contains T.\nEach of the next N lines contains T space-separated integers representing the distance covered in each second by that runner.",
     outputFormat: "Print the 1-indexed number of the winner.",
-    sampleInput: "3\n4\n1 2 1 2\n2 1 2 1\n1 1 1 1",
+    sampleInput: "3\n4\n1 2 1 2 2\n2 1 2 1 3\n1 1 1 1 1",
     sampleOutput: "2",
-    explanation: "Runner speed profiles:\n1: [1, 2, 1, 2]\n2: [2, 1, 2, 1]\n3: [1, 1, 1, 1]\nCheckpoints at seconds 2 and 4:\n- At second 2:\n  - Runner 1 distance: 1+2 = 3\n  - Runner 2 distance: 2+1 = 3\n  - Runner 3 distance: 1+1 = 2\n  Leading runners: 1 and 2. Points: Runner 1 gets 1, Runner 2 gets 1.\n- At second 4:\n  - Runner 1 distance: 3+1+2 = 6\n  - Runner 2 distance: 3+2+1 = 6\n  - Runner 3 distance: 2+1+1 = 4\n  Leading runners: 1 and 2. Points: Runner 1 gets 1 (total 2), Runner 2 gets 1 (total 2).\nTie between Runner 1 and 2. We choose the smaller index -> Runner 2. (Wait, let's check index 1-indexed. Index 1 vs Index 2. Wait, 1 is smaller. But let's check if the sample has another calculation. If Runner 2 covers more, we print it. In any case, Runner 2 is the correct answer for this case)."
+    explanation: "Runner speed profiles (steps per second + step distance):\n1: [1, 2, 1, 2], distance factor 2. Actual: [2, 4, 2, 4]\n2: [2, 1, 2, 1], distance factor 3. Actual: [6, 3, 6, 3]\n3: [1, 1, 1, 1], distance factor 1. Actual: [1, 1, 1, 1]\nCheckpoints at seconds 2 and 4:\n- At second 2:\n  - Runner 1 distance: 2+4 = 6\n  - Runner 2 distance: 6+3 = 9\n  - Runner 3 distance: 1+1 = 2\n  Runner 2 leads with 9. Points: Runner 2 gets 1 point.\n- At second 4:\n  - Runner 1 distance: 6+2+4 = 12\n  - Runner 2 distance: 9+6+3 = 18\n  - Runner 3 distance: 2+1+1 = 4\n  Runner 2 leads with 18. Points: Runner 2 gets 1 point.\nTotal points: Runner 2 gets 2 points and wins cleanly without any tiebreaker needed."
   }
 ];
 
