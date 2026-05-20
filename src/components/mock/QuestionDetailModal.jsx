@@ -2,26 +2,27 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play, Send, RefreshCw, Terminal, Cpu, CheckCircle2, XCircle, Code2, BookOpen, AlertCircle, Copy, Check, Sparkles, HelpCircle, Eye } from 'lucide-react';
 
-// Empty Templates Registry for all 18 Story Questions - Editor starts blank
+// Minimal starter comment for all 18 Story Questions - just a hint
+const BLANK_STARTER = `// write your code here`;
 const CPP_TEMPLATES = {
-  story1: ``,
-  story2: ``,
-  story3: ``,
-  story4: ``,
-  story5: ``,
-  story6: ``,
-  story7: ``,
-  story8: ``,
-  story9: ``,
-  story10: ``,
-  story11: ``,
-  story12: ``,
-  story13: ``,
-  story14: ``,
-  story15: ``,
-  story16: ``,
-  story17: ``,
-  story18: ``
+  story1: BLANK_STARTER,
+  story2: BLANK_STARTER,
+  story3: BLANK_STARTER,
+  story4: BLANK_STARTER,
+  story5: BLANK_STARTER,
+  story6: BLANK_STARTER,
+  story7: BLANK_STARTER,
+  story8: BLANK_STARTER,
+  story9: BLANK_STARTER,
+  story10: BLANK_STARTER,
+  story11: BLANK_STARTER,
+  story12: BLANK_STARTER,
+  story13: BLANK_STARTER,
+  story14: BLANK_STARTER,
+  story15: BLANK_STARTER,
+  story16: BLANK_STARTER,
+  story17: BLANK_STARTER,
+  story18: BLANK_STARTER
 };
 
 // Full C++ Solutions Registry for Study / Verification
@@ -192,11 +193,11 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     const saved = localStorage.getItem(`cpp_code_${question?.id}`);
     const solution = CPP_SOLUTIONS[question?.id];
     
-    // Strict verification: if localStorage contains exactly the reference solution, reset to blank!
+    // Strict verification: if localStorage contains exactly the reference solution, reset to starter comment!
     if (saved && solution && saved.trim() === solution.trim()) {
-      return '';
+      return BLANK_STARTER;
     }
-    return saved || '';
+    return saved || BLANK_STARTER;
   });
   
   const [selectedTestCase, setSelectedTestCase] = useState(0);
@@ -222,11 +223,11 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     const saved = localStorage.getItem(`cpp_code_${question?.id}`);
     const solution = CPP_SOLUTIONS[question?.id];
     
-    // Strict verification: if localStorage contains exactly the reference solution, reset to blank!
+    // Strict verification: if localStorage contains exactly the reference solution, reset to starter comment!
     if (saved && solution && saved.trim() === solution.trim()) {
-      setCode('');
+      setCode(BLANK_STARTER);
     } else {
-      setCode(saved || '');
+      setCode(saved || BLANK_STARTER);
     }
     
     setTestCasesStatus(Array(12).fill('pending'));
@@ -1276,8 +1277,8 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
 
   const resetTemplate = () => {
     if (confirm("Clear the editor? Your saved draft will be deleted and you will start from scratch.")) {
-      setCode('');
-      localStorage.setItem(`cpp_code_${question.id}`, '');
+      setCode(BLANK_STARTER);
+      localStorage.setItem(`cpp_code_${question.id}`, BLANK_STARTER);
       setTerminalLogs(prev => [...prev, `$ Editor cleared. Start writing your C++ solution from scratch.`]);
     }
   };
