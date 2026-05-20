@@ -241,22 +241,6 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [terminalLogs]);
 
-  // Intercept browser back button — close modal instead of leaving the page
-  useEffect(() => {
-    // Push a dummy state so the back button has somewhere to "go back" to
-    window.history.pushState({ modalOpen: true }, '');
-
-    const handlePopState = (e) => {
-      // Back button was pressed — close modal, stay on current page
-      onClose();
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [onClose]);
-
   if (!question) return null;
 
   // 12 Comprehensive Test Cases Generator & solvers mapped per question

@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import MockSession from './pages/MockSession';
 import History from './pages/History';
 import QuestionBank from './pages/QuestionBank';
+import ChallengePage from './pages/ChallengePage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/session" element={<MockSession />} />
             <Route path="/history" element={<History />} />
             <Route path="/questions" element={<QuestionBank />} />
+            <Route path="/challenge/:id" element={<ChallengePage />} />
           </Routes>
         </main>
       </div>
