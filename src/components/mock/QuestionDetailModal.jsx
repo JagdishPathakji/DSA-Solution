@@ -1047,11 +1047,11 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     }
   };
 
-  // Real C++ compilation & execution via Wandbox (free, genuine GCC 12 via CORS Proxy)
+  // Real C++ compilation & execution via Wandbox (routed via same-origin proxy to bypass CORS)
   const compileAndRunCpp = async (sourceCode, stdinInput) => {
     try {
-      console.log("Sending request to Wandbox API via CORS Proxy...");
-      const res = await fetch('https://corsproxy.io/?url=https://wandbox.org/api/compile.json', {
+      console.log("Sending request to Wandbox API via Proxy...");
+      const res = await fetch('/compiler/compile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

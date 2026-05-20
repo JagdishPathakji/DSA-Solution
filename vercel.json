@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/compiler/compile",
+      "destination": "https://wandbox.org/api/compile.json"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }
