@@ -1,14 +1,16 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, CheckSquare, Square, ExternalLink, Target, Sparkles } from 'lucide-react';
 import { questions } from '../data/questions';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import QuestionDetailModal from '../components/mock/QuestionDetailModal';
 
 export default function QuestionBank() {
   const [solvedQuestions, setSolvedQuestions] = useLocalStorage('solvedQuestions', []);
   const [searchQuery, setSearchQuery] = useState('');
   const [topicFilter, setTopicFilter] = useState('All');
   const [diffFilter, setDiffFilter] = useState('All');
+  const [activeQuestion, setActiveQuestion] = useState(null);
 
   // Derive unique topics
   const topics = useMemo(() => ['All', ...new Set(questions.map(q => q.topic))].sort(), []);
@@ -158,9 +160,18 @@ export default function QuestionBank() {
                   </button>
 
                   <div className="flex-1 w-full flex items-center gap-2">
-                    <a href={q.link} target="_blank" rel="noopener noreferrer" className={`font-bold hover:text-accent-purple transition-all flex items-center gap-2 ${isSolved ? 'text-text-muted/60 line-through' : 'text-white drop-shadow-sm'}`}>
-                      {q.title} <ExternalLink className="w-3.5 h-3.5 opacity-50" />
-                    </a>
+                    {q.description ? (
+                      <button
+                        onClick={() => setActiveQuestion(q)}
+                        className={`text-left font-bold hover:text-accent-purple transition-all flex items-center gap-2 ${isSolved ? 'text-text-muted/60 line-through' : 'text-white drop-shadow-sm'}`}
+                      >
+                        {q.title} <Sparkles className="w-3.5 h-3.5 text-accent-pink opacity-75" />
+                      </button>
+                    ) : (
+                      <a href={q.link} target="_blank" rel="noopener noreferrer" className={`font-bold hover:text-accent-purple transition-all flex items-center gap-2 ${isSolved ? 'text-text-muted/60 line-through' : 'text-white drop-shadow-sm'}`}>
+                        {q.title} <ExternalLink className="w-3.5 h-3.5 opacity-50" />
+                      </a>
+                    )}
                   </div>
 
                   <div className="w-full md:w-40 flex">
@@ -189,6 +200,18 @@ export default function QuestionBank() {
           )}
         </div>
       </motion.div>
+
+      {/* Detail Drawer Modal */}
+      <AnimatePresence>
+        {activeQuestion && (
+          <QuestionDetailModal
+            question={activeQuestion}
+            onClose={() => setActiveQuestion(null)}
+            isSolved={solvedQuestions.includes(activeQuestion.id)}
+            onToggleSolved={toggleSolved}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

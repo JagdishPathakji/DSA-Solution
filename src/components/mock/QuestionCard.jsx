@@ -1,7 +1,7 @@
 import { ExternalLink, Tag, CheckSquare, Square } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function QuestionCard({ question, index, isSolved, onToggleSolved }) {
+export default function QuestionCard({ question, index, isSolved, onToggleSolved, onViewDetails }) {
   const getDifficultyColor = (diff) => {
     switch (diff) {
       case 'Easy': return 'text-green-400 bg-green-400/10 border-green-400/30 shadow-[0_0_10px_rgba(74,222,128,0.2)]';
@@ -67,14 +67,23 @@ export default function QuestionCard({ question, index, isSolved, onToggleSolved
       </div>
 
       <div className="pt-5 border-t border-white/10 mt-auto z-10 relative">
-        <a 
-          href={question.link} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-3 w-full py-3 bg-dark-bg/80 border border-white/10 text-white rounded-xl font-bold transition-all duration-300 group-hover:btn-premium group-hover:border-transparent group-hover:text-white shadow-inner"
-        >
-          ENTER CHALLENGE <ExternalLink className="w-4 h-4 opacity-70 group-hover:opacity-100" />
-        </a>
+        {question.description && onViewDetails ? (
+          <button 
+            onClick={() => onViewDetails(question)}
+            className="flex items-center justify-center gap-3 w-full py-3 bg-dark-bg/80 border border-white/10 text-white rounded-xl font-bold transition-all duration-300 group-hover:btn-premium group-hover:border-transparent group-hover:text-white shadow-inner cursor-pointer"
+          >
+            ENTER CHALLENGE <ExternalLink className="w-4 h-4 opacity-70 group-hover:opacity-100" />
+          </button>
+        ) : (
+          <a 
+            href={question.link} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-3 w-full py-3 bg-dark-bg/80 border border-white/10 text-white rounded-xl font-bold transition-all duration-300 group-hover:btn-premium group-hover:border-transparent group-hover:text-white shadow-inner"
+          >
+            ENTER CHALLENGE <ExternalLink className="w-4 h-4 opacity-70 group-hover:opacity-100" />
+          </a>
+        )}
       </div>
     </motion.div>
   );

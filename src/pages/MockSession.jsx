@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, AlertCircle, Sparkles, Target, Trophy } from 'lucide-react';
 import Timer from '../components/mock/Timer';
 import QuestionCard from '../components/mock/QuestionCard';
+import QuestionDetailModal from '../components/mock/QuestionDetailModal';
 import { generateMock } from '../utils/mockGenerator';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -20,6 +21,7 @@ export default function MockSession() {
   const [questions, setQuestions] = useState([]);
   const [isCompleted, setIsCompleted] = useState(false);
   const [sessionSaved, setSessionSaved] = useState(false);
+  const [activeQuestion, setActiveQuestion] = useState(null);
 
   useEffect(() => {
     // Collect all previously seen questions to try and generate unseen ones
@@ -150,9 +152,22 @@ export default function MockSession() {
             index={i} 
             isSolved={solvedQuestions.includes(q.id)}
             onToggleSolved={toggleSolved}
+            onViewDetails={setActiveQuestion}
           />
         ))}
       </div>
+
+      {/* Detail Drawer Modal */}
+      <AnimatePresence>
+        {activeQuestion && (
+          <QuestionDetailModal
+            question={activeQuestion}
+            onClose={() => setActiveQuestion(null)}
+            isSolved={solvedQuestions.includes(activeQuestion.id)}
+            onToggleSolved={toggleSolved}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
