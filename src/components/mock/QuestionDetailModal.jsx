@@ -1047,15 +1047,16 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     }
   };
 
-  // Real C++ compilation & execution via Wandbox (routed via same-origin proxy to bypass CORS)
+  // Real C++ compilation & execution via Wandbox (with same-origin proxy and multi-proxy client-side fallback)
   const compileAndRunCpp = async (sourceCode, stdinInput) => {
+    // 1. Try Same-Origin Local/Production Proxy first (Best & CORS-safe for Vite / Vercel)
     try {
-      console.log("Sending request to Wandbox API via Proxy...");
+      console.log("Sending request to Wandbox API via Same-Origin Proxy...");
       const res = await fetch('/compiler/compile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          compiler: 'gcc-12.2.0',
+          compiler: 'gcc-13.2.0',
           code: sourceCode,
           stdin: stdinInput || '',
           options: '-std=c++17 -O2',
@@ -1063,15 +1064,68 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
         })
       });
 
-      if (!res.ok) {
-        throw new Error(`Compiler API returned HTTP status ${res.status}`);
+      if (res.ok) {
+        const result = await res.json();
+        if (result && (result.program_output !== undefined || result.compiler_error !== undefined)) {
+          return result;
+        }
       }
+      console.warn(`Same-origin proxy returned status ${res.status}. Trying CORS proxy fallback...`);
+    } catch (e) {
+      console.warn("Same-origin proxy failed. Trying CORS proxy fallback...", e);
+    }
 
-      const result = await res.json();
-      return result;
+    // 2. Try Primary CORS Proxy (corsproxy.io with properly URL-encoded destination)
+    try {
+      console.log("Sending request to Wandbox API via Primary CORS Proxy...");
+      const res = await fetch('https://corsproxy.io/?url=https%3A%2F%2Fwandbox.org%2Fapi%2Fcompile.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          compiler: 'gcc-13.2.0',
+          code: sourceCode,
+          stdin: stdinInput || '',
+          options: '-std=c++17 -O2',
+          save: false
+        })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        if (result && (result.program_output !== undefined || result.compiler_error !== undefined)) {
+          return result;
+        }
+      }
+      console.warn(`Primary CORS proxy returned status ${res.status}. Trying Backup CORS proxy...`);
+    } catch (e) {
+      console.warn("Primary CORS proxy failed. Trying Backup CORS proxy...", e);
+    }
+
+    // 3. Try Backup CORS Proxy (api.cors.lol with URL-encoded destination)
+    try {
+      console.log("Sending request to Wandbox API via Backup CORS Proxy...");
+      const res = await fetch('https://api.cors.lol/?url=https%3A%2F%2Fwandbox.org%2Fapi%2Fcompile.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          compiler: 'gcc-13.2.0',
+          code: sourceCode,
+          stdin: stdinInput || '',
+          options: '-std=c++17 -O2',
+          save: false
+        })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        if (result && (result.program_output !== undefined || result.compiler_error !== undefined)) {
+          return result;
+        }
+      }
+      throw new Error(`All compilation proxy routes returned non-OK status.`);
     } catch (error) {
-      console.error("Error during Wandbox API call:", error);
-      throw new Error("Failed to compile and run C++ code. Make sure you are connected to the internet.");
+      console.error("All C++ compiler proxy endpoints failed:", error);
+      throw new Error("Failed to compile C++ code. The compiler servers are busy or your environment lacks proxy support. Please check your internet connection.");
     }
   };
 
