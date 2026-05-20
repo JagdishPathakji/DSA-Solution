@@ -1047,14 +1047,11 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     }
   };
 
-  // Real C++ compilation & execution via Wandbox (free, genuine GCC 12)
+  // Real C++ compilation & execution via Wandbox (free, genuine GCC 12 via CORS Proxy)
   const compileAndRunCpp = async (sourceCode, stdinInput) => {
     try {
-      console.log("Sending request to Wandbox API...");
-      console.log("Source Code:", sourceCode);
-      console.log("Input:", stdinInput);
-
-      const res = await fetch('https://wandbox.org/api/compile.json', {
+      console.log("Sending request to Wandbox API via CORS Proxy...");
+      const res = await fetch('https://corsproxy.io/?url=https://wandbox.org/api/compile.json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1067,65 +1064,29 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
       });
 
       if (!res.ok) {
-        console.error(`Wandbox API Error: ${res.status}`);
-        throw new Error(`Compiler API returned ${res.status}`);
+        throw new Error(`Compiler API returned HTTP status ${res.status}`);
       }
 
       const result = await res.json();
-      console.log("Wandbox API Response:", result);
       return result;
     } catch (error) {
       console.error("Error during Wandbox API call:", error);
-      throw new Error("Failed to compile and run C++ code. Please try again later.");
-    }
-  };
-
-  const runCppLocally = async (sourceCode, stdinInput) => {
-    const { exec } = require('child_process');
-    const fs = require('fs');
-    const path = require('path');
-
-    try {
-      // Create temporary files for the source code and input
-      const tempDir = path.join(__dirname, 'temp');
-      if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
-
-      const sourceFile = path.join(tempDir, 'main.cpp');
-      const inputFile = path.join(tempDir, 'input.txt');
-      const outputFile = path.join(tempDir, 'output.txt');
-
-      fs.writeFileSync(sourceFile, sourceCode);
-      fs.writeFileSync(inputFile, stdinInput);
-
-      // Compile the C++ code
-      const compileCommand = `g++ -std=c++17 -O2 ${sourceFile} -o ${tempDir}/main`;
-      exec(compileCommand, (compileError, stdout, stderr) => {
-        if (compileError) {
-          console.error('Compilation Error:', stderr);
-          throw new Error('Compilation failed.');
-        }
-
-        // Run the compiled program with input redirection
-        const runCommand = `${tempDir}/main < ${inputFile} > ${outputFile}`;
-        exec(runCommand, (runError, stdout, stderr) => {
-          if (runError) {
-            console.error('Runtime Error:', stderr);
-            throw new Error('Runtime error occurred.');
-          }
-
-          // Read and return the output
-          const output = fs.readFileSync(outputFile, 'utf-8');
-          console.log('Program Output:', output);
-          return output;
-        });
-      });
-    } catch (error) {
-      console.error('Error during local execution:', error);
-      throw new Error('Failed to execute C++ code locally.');
+      throw new Error("Failed to compile and run C++ code. Make sure you are connected to the internet.");
     }
   };
 
   const handleCompileAndRun = async (isFullSubmission = false) => {
+    // Basic check for empty editor or placeholder
+    const trimmedCode = code.trim();
+    if (!trimmedCode || trimmedCode === BLANK_STARTER) {
+      setEditorTab('terminal');
+      setTerminalLogs(prev => [
+        ...prev,
+        `[System Error] Editor contains only placeholder code. Please write your C++ solution before executing.`
+      ]);
+      return;
+    }
+
     setIsCompiling(true);
     setEditorTab('terminal');
     const testCases = generate12TestCases(question.id);
@@ -1133,62 +1094,138 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
 
     setTerminalLogs(prev => [
       ...prev,
-      `[System] Starting local compilation and execution...`
+      `[System] Initiating C++ compilation using GCC 12 via cloud sandbox...`,
+      `$ g++ -std=c++17 -O2 main.cpp -o main`
     ]);
 
     try {
+      // Step 1: Real compilation check using the first test case
+      const testToCompile = isFullSubmission ? testCases[0] : singleTest;
+      const compileCheck = await compileAndRunCpp(code, testToCompile.input);
+
+      // Check if there are compilation errors
+      if (compileCheck.compiler_error) {
+        const errLines = compileCheck.compiler_error.split('\n').filter(l => l.trim());
+        setTerminalLogs(prev => [
+          ...prev,
+          ...errLines,
+          `Compilation failed with exit code 1.`
+        ]);
+        setIsCompiling(false);
+        if (isFullSubmission) {
+          setTestCasesStatus(Array(12).fill('failed'));
+        } else {
+          const s = [...testCasesStatus];
+          s[selectedTestCase] = 'failed';
+          setTestCasesStatus(s);
+        }
+        return;
+      }
+
+      setTerminalLogs(prev => [
+        ...prev,
+        `[System] Compilation successful. Linker generated executable binary.`,
+        `$ ./main < input.txt`
+      ]);
+
+      // Step 2: Run test case(s)
       if (isFullSubmission) {
-        setTerminalLogs(prev => [...prev, `[System] Running all 12 test cases...`]);
-        let runStatuses = Array(12).fill('pending');
+        setTerminalLogs(prev => [...prev, `[System] Executing all 12 test cases in parallel...`]);
+        
+        let runStatuses = Array(12).fill('running');
         let outputs = Array(12).fill('');
         let passedCount = 0;
+        setTestCasesStatus([...runStatuses]);
 
-        for (let idx = 0; idx < 12; idx++) {
-          runStatuses = [...runStatuses];
-          runStatuses[idx] = 'running';
-          setTestCasesStatus([...runStatuses]);
-
-          const tc = testCases[idx];
+        // Run all 12 test cases in parallel
+        const promises = testCases.map(async (tc, idx) => {
           try {
-            const result = await runCppLocally(code, tc.input);
-            const actual = (result || '').trim();
+            const result = await compileAndRunCpp(code, tc.input);
+
+            if (result.compiler_error) {
+              runStatuses[idx] = 'failed';
+              outputs[idx] = 'Compilation Error';
+              setTestCasesStatus([...runStatuses]);
+              setTestCasesActualOutput([...outputs]);
+              setTerminalLogs(prev => [
+                ...prev,
+                `  -> Case ${idx + 1} (${tc.type}): FAILED (Compiler Error)`
+              ]);
+              return false;
+            }
+
+            if (result.program_error) {
+              runStatuses[idx] = 'failed';
+              outputs[idx] = 'Runtime Error';
+              setTestCasesStatus([...runStatuses]);
+              setTestCasesActualOutput([...outputs]);
+              setTerminalLogs(prev => [
+                ...prev,
+                `  -> Case ${idx + 1} (${tc.type}): FAILED (Runtime Error: ${result.program_error.trim()})`
+              ]);
+              return false;
+            }
+
+            const actual = (result.program_output || '').trim();
             const expected = tc.expected.trim();
             const passed = actual === expected;
+
             runStatuses[idx] = passed ? 'passed' : 'failed';
             outputs[idx] = actual;
             if (passed) passedCount++;
-            setTestCasesActualOutput([...outputs]);
+
             setTestCasesStatus([...runStatuses]);
+            setTestCasesActualOutput([...outputs]);
             setTerminalLogs(prev => [
               ...prev,
               `  -> Case ${idx + 1} (${tc.type}): ${passed ? 'PASSED' : `FAILED — Expected: "${expected}" Got: "${actual}"`}`
             ]);
+            return passed;
           } catch (e) {
             runStatuses[idx] = 'failed';
-            outputs[idx] = 'Error';
-            setTestCasesActualOutput([...outputs]);
+            outputs[idx] = 'Execution Error';
             setTestCasesStatus([...runStatuses]);
-            setTerminalLogs(prev => [...prev, `  -> Case ${idx + 1}: ERROR - ${e.message}`]);
+            setTestCasesActualOutput([...outputs]);
+            setTerminalLogs(prev => [
+              ...prev,
+              `  -> Case ${idx + 1} (${tc.type}): ERROR - ${e.message}`
+            ]);
+            return false;
           }
-        }
+        });
 
-        const allPassed = passedCount === 12;
+        const results = await Promise.all(promises);
+        const allPassed = results.every(x => x === true);
+
         setTerminalLogs(prev => [
           ...prev,
           `----------------------------------------`,
           `Results: ${passedCount}/12 passed.`,
           allPassed
             ? `[Success] All 12 test cases passed! Marked as Solved.`
-            : `[Failure] ${12 - passedCount} test case(s) failed.`
+            : `[Failure] ${12 - passedCount} test case(s) failed. Fix your logic and resubmit.`
         ]);
         setIsCompiling(false);
         if (allPassed && !isSolved) onToggleSolved(question.id);
 
       } else {
-        // Single run
+        // Single test case run
         setTerminalLogs(prev => [...prev, `[System] Running Case ${selectedTestCase + 1} (${singleTest.type})...`]);
-        const result = await runCppLocally(code, singleTest.input);
-        const actual = (result || '').trim();
+        const result = await compileAndRunCpp(code, singleTest.input);
+        
+        if (result.program_error) {
+          setTerminalLogs(prev => [
+            ...prev,
+            `[Runtime Error] ${result.program_error.trim()}`
+          ]);
+          const newStatuses = [...testCasesStatus];
+          newStatuses[selectedTestCase] = 'failed';
+          setTestCasesStatus(newStatuses);
+          setIsCompiling(false);
+          return;
+        }
+
+        const actual = (result.program_output || '').trim();
         const expected = singleTest.expected.trim();
         const passed = actual === expected;
 
@@ -1221,7 +1258,7 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     } catch (err) {
       setTerminalLogs(prev => [
         ...prev,
-        `[Error] Local execution failed: ${err.message}`
+        `[Error] Compilation / Execution failed: ${err.message}`
       ]);
       setIsCompiling(false);
     }
