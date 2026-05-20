@@ -2,26 +2,26 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play, Send, RefreshCw, Terminal, Cpu, CheckCircle2, XCircle, Code2, BookOpen, AlertCircle, Copy, Check, Sparkles, HelpCircle, Eye } from 'lucide-react';
 
-// Dynamic C++ Templates Registry for all 18 Story Questions (Boilerplates only)
+// Empty Templates Registry for all 18 Story Questions - Editor starts blank
 const CPP_TEMPLATES = {
-  story1: `#include <iostream>\nusing namespace std;\n\n// Problem: Philaland Coins\n// Find the minimum number of coin denominations required.\nvoid solve() {\n    int n;\n    cin >> n;\n    \n    int ans = 0;\n    // TODO: Write your logical algorithm here to cover all values up to N\n    \n    cout << ans << endl;\n}\n\nint main() {\n    int t;\n    cin >> t;\n    while (t--) {\n        solve();\n    }\n    return 0;\n}`,
-  story2: `#include <iostream>\n#include <string>\nusing namespace std;\n\n// Problem: Swayamvar Matchmaking\n// Find the number of brides who remain unmarried.\nint main() {\n    int n;\n    cin >> n;\n    string brides, grooms;\n    cin >> brides >> grooms;\n    \n    int ans = 0;\n    // TODO: Write your matchmaking algorithm here\n    \n    cout << ans << endl;\n    return 0;\n}`,
-  story3: `#include <iostream>\nusing namespace std;\n\n// Problem: Dole Out Cadbury\n// Count Cadbury blocks given to children.\nint main() {\n    int minL, maxL, minW, maxW;\n    cin >> minL >> maxL >> minW >> maxW;\n    \n    int total = 0;\n    // TODO: Write your algorithm here to calculate total children\n    \n    cout << total << endl;\n    return 0;\n}`,
-  story4: `#include <iostream>\n#include <vector>\nusing namespace std;\n\nstruct Monster {\n    int power;\n    int bonus;\n};\n\n// Problem: RPG Monster Defeat\nint main() {\n    int n, exp;\n    cin >> n >> exp;\n    vector<Monster> monsters(n);\n    for (int i = 0; i < n; i++) cin >> monsters[i].power;\n    for (int i = 0; i < n; i++) cin >> monsters[i].bonus;\n    \n    int ans = 0;\n    // TODO: Write your algorithm here to defeat the monsters\n    \n    cout << ans << endl;\n    return 0;\n}`,
-  story5: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Unique Birthday Gift\n// Find the total number of arrays of length N with elements in [1, K]\nint main() {\n    int n, k;\n    cin >> n >> k;\n    \n    long long ans = 0;\n    // TODO: Write your DP logic here modulo 1000000007\n    \n    cout << ans << endl;\n    return 0;\n}`,
-  story6: `#include <iostream>\n#include <vector>\n#include <string>\nusing namespace std;\n\n// Problem: Constellation Star Decoding\nint main() {\n    int n;\n    cin >> n;\n    vector<string> grid(3);\n    for (int i = 0; i < 3; i++) cin >> grid[i];\n    \n    string ans = "";\n    // TODO: Decode vowel patterns ('A', 'E', 'I', 'O', 'U') and boundaries ('#')\n    \n    cout << ans << endl;\n    return 0;\n}`,
-  story7: `#include <iostream>\n#include <vector>\n#include <string>\nusing namespace std;\n\n// Problem: Special Grid Matrix\nint main() {\n    int r, c;\n    cin >> r >> c;\n    vector<vector<string>> grid(r, vector<string>(c));\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) cin >> grid[i][j];\n    }\n    \n    long long ans = 0;\n    // TODO: Write DP/Pathfinding with Portal jumps and Prime obstacles modulo 10^9+7\n    \n    cout << ans << endl;\n    return 0;\n}`,
-  story8: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Digit Pairs Match\nint main() {\n    int n;\n    cin >> n;\n    vector<int> arr(n);\n    for (int i = 0; i < n; i++) cin >> arr[i];\n    \n    int pairs = 0;\n    // TODO: Calculate bit-scores, MSB alignments, and odd/even position pairs\n    \n    cout << pairs << endl;\n    return 0;\n}`,
-  story9: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Holes and Balls gravity drop\nint main() {\n    int h;\n    cin >> h;\n    vector<int> holes(h);\n    for (int i = 0; i < h; i++) cin >> holes[i];\n    int b;\n    cin >> b;\n    vector<int> balls(b);\n    for (int i = 0; i < b; i++) cin >> balls[i];\n    \n    // TODO: Output final ball indexes space-separated\n    \n    return 0;\n}`,
-  story10: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Saving Patients vaccine antibodies\nint main() {\n    int n;\n    cin >> n;\n    vector<int> vac(n), pat(n);\n    for (int i = 0; i < n; i++) cin >> vac[i];\n    for (int i = 0; i < n; i++) cin >> pat[i];\n    \n    // TODO: Output "Yes" if all patients can be saved, else "No"\n    \n    return 0;\n}`,
-  story11: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Grid Path Planning BFS\nint main() {\n    int r, c;\n    cin >> r >> c;\n    vector<vector<int>> grid(r, vector<int>(c));\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) cin >> grid[i][j];\n    }\n    \n    int ans = -1;\n    // TODO: Find the shortest path through 0-value cells using BFS/Queue\n    \n    cout << ans << endl;\n    return 0;\n}`,
-  story12: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Super Market Knapsack Billing\nint main() {\n    int n, w, m;\n    cin >> n >> w >> m;\n    vector<int> weights(n);\n    for (int i = 0; i < n; i++) cin >> weights[i];\n    vector<int> costs(n);\n    for (int i = 0; i < n; i++) cin >> costs[i];\n    \n    // TODO: Read discount pairs and compute maximum items value carried\n    \n    int ans = 0;\n    cout << ans << endl;\n    return 0;\n}`,
-  story13: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Grooving Blocks cycle matching\nint main() {\n    int n;\n    cin >> n;\n    vector<int> arr(n);\n    for (int i = 0; i < n; i++) cin >> arr[i];\n    \n    long long ans = 0;\n    // TODO: Find minimum seconds using LCM of permutations cycles\n    \n    cout << ans << endl;\n    return 0;\n}`,
-  story14: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Web Pages graph BFS shortest path\nint main() {\n    int n;\n    cin >> n;\n    vector<vector<int>> adj(n + 1);\n    for (int i = 1; i <= n; i++) {\n        int k;\n        cin >> k;\n        for (int j = 0; j < k; j++) {\n            int target;\n            cin >> target;\n            adj[i].push_back(target);\n        }\n    }\n    int src, dest;\n    cin >> src >> dest;\n    \n    int ans = -1;\n    // TODO: Find minimum clicks using graph traversal\n    \n    cout << ans << endl;\n    return 0;\n}`,
-  story15: `#include <iostream>\n#include <string>\nusing namespace std;\n\n// Problem: Orchard fruit combinations count\nint main() {\n    string ashok, anand;\n    cin >> ashok >> anand;\n    \n    // TODO: Output Ashok, Anand, or Draw based on alternating type tree selections\n    \n    return 0;\n}`,
-  story16: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Bride Hunting Quest qualities matching\nint main() {\n    int r, c;\n    cin >> r >> c;\n    vector<vector<int>> grid(r, vector<int>(c));\n    for (int i = 0; i < r; i++) {\n        for (int j = 0; j < c; j++) cin >> grid[i][j];\n    }\n    \n    // TODO: Find coordinate and quality value of candidate bride\n    \n    return 0;\n}`,
-  story17: `#include <iostream>\n#include <string>\nusing namespace std;\n\n// Problem: Cyclic String Shift\nvoid solve() {\n    string s, t;\n    cin >> s >> t;\n    \n    int ans = -1;\n    // TODO: Find minimum cyclic shifts to transform S into T\n    \n    cout << ans << endl;\n}\n\nint main() {\n    solve();\n    return 0;\n}`,
-  story18: `#include <iostream>\n#include <vector>\nusing namespace std;\n\n// Problem: Marathon Winner simulation\nint main() {\n    int n, t;\n    cin >> n >> t;\n    vector<vector<int>> steps(n, vector<int>(t));\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < t; j++) cin >> steps[i][j];\n    }\n    \n    int ans = 1;\n    // TODO: Output winning runner index (1-indexed)\n    \n    cout << ans << endl;\n    return 0;\n}`
+  story1: ``,
+  story2: ``,
+  story3: ``,
+  story4: ``,
+  story5: ``,
+  story6: ``,
+  story7: ``,
+  story8: ``,
+  story9: ``,
+  story10: ``,
+  story11: ``,
+  story12: ``,
+  story13: ``,
+  story14: ``,
+  story15: ``,
+  story16: ``,
+  story17: ``,
+  story18: ``
 };
 
 // Full C++ Solutions Registry for Study / Verification
@@ -190,14 +190,13 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
   const [showSolutionModal, setShowSolutionModal] = useState(false);
   const [code, setCode] = useState(() => {
     const saved = localStorage.getItem(`cpp_code_${question?.id}`);
-    const template = CPP_TEMPLATES[question?.id] || `// Write your C++ code here\n#include <iostream>\nusing namespace std;\n\nint main() {\n    return 0;\n}`;
     const solution = CPP_SOLUTIONS[question?.id];
     
-    // Strict verification: if localStorage contains exactly the reference solution, reset it to boilerplate!
+    // Strict verification: if localStorage contains exactly the reference solution, reset to blank!
     if (saved && solution && saved.trim() === solution.trim()) {
-      return template;
+      return '';
     }
-    return saved || template;
+    return saved || '';
   });
   
   const [selectedTestCase, setSelectedTestCase] = useState(0);
@@ -221,14 +220,13 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
     setActiveTab('problem');
     setEditorTab('editor');
     const saved = localStorage.getItem(`cpp_code_${question?.id}`);
-    const template = CPP_TEMPLATES[question?.id] || `// Write your C++ code here\n#include <iostream>\nusing namespace std;\n\nint main() {\n    return 0;\n}`;
     const solution = CPP_SOLUTIONS[question?.id];
     
-    // Strict verification: if localStorage contains exactly the reference solution, reset to boilerplate!
+    // Strict verification: if localStorage contains exactly the reference solution, reset to blank!
     if (saved && solution && saved.trim() === solution.trim()) {
-      setCode(template);
+      setCode('');
     } else {
-      setCode(saved || template);
+      setCode(saved || '');
     }
     
     setTestCasesStatus(Array(12).fill('pending'));
@@ -1277,11 +1275,10 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
   };
 
   const resetTemplate = () => {
-    if (confirm("Reset current editor content to C++ starting template? Your saved draft will be overridden.")) {
-      const template = CPP_TEMPLATES[question.id] || "";
-      setCode(template);
-      localStorage.setItem(`cpp_code_${question.id}`, template);
-      setTerminalLogs(prev => [...prev, `$ Editor state reset to initial C++ boilerplate template.`]);
+    if (confirm("Clear the editor? Your saved draft will be deleted and you will start from scratch.")) {
+      setCode('');
+      localStorage.setItem(`cpp_code_${question.id}`, '');
+      setTerminalLogs(prev => [...prev, `$ Editor cleared. Start writing your C++ solution from scratch.`]);
     }
   };
 
@@ -1320,17 +1317,18 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
             ))}
           </div>
           
-          <button
-            onClick={() => onToggleSolved(question.id)}
-            className={`flex items-center gap-2 px-4 py-1.5 border rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 ${
+          {/* Read-only solved badge — only set automatically when all 12 test cases pass on Submit */}
+          <div
+            className={`flex items-center gap-2 px-4 py-1.5 border rounded-lg text-xs font-black uppercase tracking-wider select-none cursor-default ${
               isSolved
-                ? 'border-accent-green/30 text-accent-green bg-accent-green/10 hover:bg-accent-green/20'
-                : 'border-white/5 hover:border-white/20 text-text-muted hover:text-white bg-dark-bg/50'
+                ? 'border-accent-green/40 text-accent-green bg-accent-green/10 shadow-[0_0_12px_rgba(52,211,153,0.15)]'
+                : 'border-white/5 text-text-muted/50 bg-dark-bg/30'
             }`}
+            title={isSolved ? 'All 12 test cases passed — Solved!' : 'Submit all 12 test cases to mark as Solved'}
           >
             {isSolved ? <CheckCircle2 className="w-4 h-4" /> : <HelpCircle className="w-4 h-4" />}
             {isSolved ? "SOLVED" : "UNSOLVED"}
-          </button>
+          </div>
 
           <button 
             onClick={onClose}
