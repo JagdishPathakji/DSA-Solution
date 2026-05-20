@@ -243,8 +243,6 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
 
   if (!question) return null;
 
-  // Compute test cases once at render level so both the JSX tab and the handler can use them
-  const testCases = generate12TestCases(question.id);
 
   // 12 Comprehensive Test Cases Generator & solvers mapped per question
   const generate12TestCases = (qid) => {
@@ -522,6 +520,9 @@ export default function QuestionDetailModal({ question, onClose, isSolved, onTog
         ];
     }
   };
+
+  // Computed at render level — available to both the JSX (12 Test Cases tab) and handleCompileAndRun
+  const testCases = generate12TestCases(question.id);
 
   // Dynamic JS validation solver core
   const runJsSolver = (qid, inputVal) => {
